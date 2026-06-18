@@ -7,8 +7,8 @@ Update this file after every completed feature. Any AI agent reading this should
 ## Current Status
 
 **Current Phase:** Phase 1 — Auth
-**Last completed:** Login API
-**Next:** Auth me API
+**Last completed:** Auth me API
+**Next:** Protected frontend route handling
 
 ---
 
@@ -20,7 +20,7 @@ Update this file after every completed feature. Any AI agent reading this should
 - [x] 02 Signup API
 - [x] 03 Login page
 - [x] 04 Login API
-- [ ] 05 Auth me API
+- [x] 05 Auth me API
 - [ ] 06 Protected frontend route handling
 
 ### Phase 2 — Programs
@@ -88,6 +88,8 @@ Update this file after every completed feature. Any AI agent reading this should
 - Signup frontend uses reusable layers: auth components, shared auth types, validation/API helpers, and a state orchestration hook.
 - Signup and login share `AuthLayout`; both forms use the same input, action, validation, loading, and request-error patterns.
 - Login API validates normalized credentials, returns a generic `401` for invalid credentials, and sets the 7-day HTTP-only `access_token` cookie.
+- Auth middleware reads and verifies the `access_token` cookie, attaches typed identity to the request, and returns generic `401` responses for missing or invalid tokens.
+- Auth me API revalidates both `userId` and `creatorId` against the database before returning safe user and creator details.
 - Prioritize frontend first inside each phase.
 - Tenant isolation is the highest priority.
 - Every tenant-owned backend query must include `creatorId`.

@@ -35,6 +35,31 @@ export async function findUserCredentialsByEmail(email: string) {
   });
 }
 
+export async function findAuthenticatedUser(
+  userId: string,
+  creatorId: string,
+) {
+  return prisma.user.findFirst({
+    where: {
+      id: userId,
+      creatorId,
+    },
+    select: {
+      id: true,
+      creatorId: true,
+      email: true,
+      role: true,
+      creator: {
+        select: {
+          id: true,
+          name: true,
+          brandName: true,
+        },
+      },
+    },
+  });
+}
+
 export async function createCreatorOwner(input: CreateCreatorOwnerInput) {
   return prisma.$transaction(async (transaction) => {
     const creator = await transaction.creator.create({

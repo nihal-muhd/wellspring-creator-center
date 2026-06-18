@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import { AppError } from "../../lib/app-error";
 import {
   createCreatorOwner,
+  findAuthenticatedUser,
   findUserCredentialsByEmail,
   findUserByEmail,
 } from "./auth.repository";
@@ -44,6 +45,27 @@ export async function login(input: LoginInput) {
 
   if (!passwordMatches) {
     throw new AppError("Invalid email or password.", 401);
+  }
+
+  return {
+    creator: user.creator,
+    user: {
+      id: user.id,
+      creatorId: user.creatorId,
+      email: user.email,
+      role: user.role,
+    },
+  };
+}
+
+export async function getAuthenticatedUser(
+  userId: string,
+  creatorId: string,
+) {
+  const user = await findAuthenticatedUser(userId, creatorId);
+
+  if (!user) {
+    throw new AppError("Unauthorized.", 401);
   }
 
   return {

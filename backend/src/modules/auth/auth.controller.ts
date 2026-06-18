@@ -2,7 +2,11 @@ import type { NextFunction, Request, Response } from "express";
 
 import { createAccessToken } from "../../lib/auth-token";
 import { loginSchema, signupSchema } from "./auth.schema";
-import { login, signup } from "./auth.service";
+import {
+  getAuthenticatedUser,
+  login,
+  signup,
+} from "./auth.service";
 
 const ACCESS_TOKEN_MAX_AGE = 7 * 24 * 60 * 60 * 1000;
 
@@ -56,6 +60,36 @@ export async function loginController(
     });
 
     setAccessTokenCookie(res, accessToken);
+
+    res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function meController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const authenticatedUser = req.user;
+
+    if (!authenticatedUser) {
+      res.status(401).json({
+        success: false,
+        error: "Unauthorized.",
+      });
+      return;
+    }
+
+    const result = await getAuthenticatedUser(
+      authenticatedUser.userId,
+      authenticatedUser.creatorId,
+    );
 
     res.status(200).json({
       success: true,

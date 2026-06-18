@@ -7,8 +7,8 @@ Update this file after every completed feature. Any AI agent reading this should
 ## Current Status
 
 **Current Phase:** Phase 1 — Auth
-**Last completed:** Database schema, migration, and seed setup
-**Next:** Signup page
+**Last completed:** Signup page
+**Next:** Signup API
 
 ---
 
@@ -16,7 +16,7 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ### Phase 1 — Auth
 
-- [ ] 01 Signup page
+- [x] 01 Signup page
 - [ ] 02 Signup API
 - [ ] 03 Login page
 - [ ] 04 Login API
@@ -83,6 +83,8 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ## Notes
 
+- Tailwind v4 is configured through `frontend/app/globals.css` using CSS-first `@theme` tokens.
+- Plus Jakarta Sans is connected through `next/font/google` and the `font-sans` utility.
 - Prioritize frontend first inside each phase.
 - Tenant isolation is the highest priority.
 - Every tenant-owned backend query must include `creatorId`.

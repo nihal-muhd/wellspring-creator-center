@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 
+import { Sidebar } from "@/components/layout/Sidebar";
 import { getAuthSession } from "@/lib/auth/session";
 
 type ProtectedLayoutProps = {
@@ -16,5 +17,12 @@ export default async function ProtectedLayout({
     redirect("/login");
   }
 
-  return children;
+  const workspaceName = session.creator.brandName ?? session.creator.name;
+
+  return (
+    <div className="min-h-dvh bg-background lg:flex">
+      <Sidebar workspaceName={workspaceName} />
+      <div className="min-w-0 flex-1">{children}</div>
+    </div>
+  );
 }

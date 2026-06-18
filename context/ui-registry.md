@@ -112,6 +112,27 @@ Use this pattern for switching between login and signup without making the secon
 
 ## Protected Workspace UI
 
+### Workspace Sidebar
+
+File: `frontend/components/layout/Sidebar.tsx`
+
+Last updated: 2026-06-18
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-card` |
+| Border | `border-r border-border` |
+| Active background | `bg-surface-container-high` |
+| Text — primary | `text-primary` |
+| Text — secondary | `text-muted-foreground` |
+| Navigation spacing | `px-6 py-3` |
+| Hover state | `hover:bg-muted hover:text-foreground` |
+| Focus state | `focus-visible:outline-2 focus-visible:outline-primary` |
+| Active accent | `before:w-1 before:bg-primary` |
+
+**Pattern notes:**
+Use this sidebar as the shared navigation shell for all protected workspace pages. Desktop uses the 280px `w-sidebar` token and full viewport height. Smaller screens use a `h-navbar` header and slide-over navigation. Workspace branding comes from the authenticated creator session. Navigation icons use Lucide at 20px with a light 1.75 stroke. Active routes use a tonal surface plus the four-pixel primary indicator from the dashboard reference.
+
 ### Protected Workspace Placeholder Card
 
 File: `frontend/app/(protected)/programs/page.tsx`

@@ -70,6 +70,20 @@ export async function loginController(
   }
 }
 
+export function logoutController(_req: Request, res: Response): void {
+  res.clearCookie("access_token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+  });
+
+  res.status(200).json({
+    success: true,
+    data: null,
+  });
+}
+
 export async function meController(
   req: Request,
   res: Response,

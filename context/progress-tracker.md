@@ -7,7 +7,7 @@ Update this file after every completed feature. Any AI agent reading this should
 ## Current Status
 
 **Current Phase:** Phase 2 — Programs
-**Last completed:** Protected frontend route handling
+**Last completed:** Protected workspace sidebar
 **Next:** Programs page
 
 ---
@@ -93,6 +93,7 @@ Update this file after every completed feature. Any AI agent reading this should
 - Next.js `proxy.ts` performs an optimistic cookie-presence check for protected routes, while the `(protected)` server layout securely validates the session through `/auth/me`.
 - Protected redirects preserve a safe local `returnTo` path so login can return users to their requested workspace page.
 - Login and signup replace the auth history entry after success, and the `(public-auth)` server layout redirects already-authenticated users away from `/login` and `/signup`.
+- Protected pages now share a responsive workspace sidebar with authenticated creator branding, active Programs/Audit Logs navigation, and functional cookie-based logout.
 - Prioritize frontend first inside each phase.
 - Tenant isolation is the highest priority.
 - Every tenant-owned backend query must include `creatorId`.

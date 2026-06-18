@@ -133,26 +133,64 @@ Last updated: 2026-06-18
 **Pattern notes:**
 Use this sidebar as the shared navigation shell for all protected workspace pages. Desktop uses the 280px `w-sidebar` token and full viewport height. Smaller screens use a `h-navbar` header and slide-over navigation. Workspace branding comes from the authenticated creator session. Navigation icons use Lucide at 20px with a light 1.75 stroke. Active routes use a tonal surface plus the four-pixel primary indicator from the dashboard reference.
 
-### Protected Workspace Placeholder Card
+### Programs Page Shell
 
-File: `frontend/app/(protected)/programs/page.tsx`
+File: `frontend/components/programs/ProgramsPageContent.tsx`
 
 Last updated: 2026-06-18
 
 | Property | Class |
 | --- | --- |
 | Page background | `bg-background` |
-| Card background | `bg-card` |
+| Toolbar background | `bg-card/80 backdrop-blur-sm` |
+| Toolbar border | `border-b border-border` |
+| Content spacing | `px-4 py-6 sm:px-6 lg:px-8 lg:py-7` |
+| Heading | `text-headline-md text-primary` |
+| Supporting text | `text-label-md text-muted-foreground` |
+| Primary action | `rounded-md bg-primary px-4 py-2.5 text-on-primary hover:bg-primary-container` |
+
+**Pattern notes:**
+Protected index pages use a slim tonal toolbar followed by a spacious constrained content area. Page actions sit beside the title on larger screens and stack beneath it on mobile. Keep primary actions compact, semantic, and paired with a Lucide icon.
+
+### Workspace Search Field
+
+File: `frontend/components/programs/ProgramsPageContent.tsx`
+
+Last updated: 2026-06-18
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-muted focus:bg-card` |
+| Border | `border border-transparent focus:border-primary` |
+| Border radius | `rounded-full` |
+| Text | `text-label-md text-foreground placeholder:text-outline` |
+| Spacing | `py-2.5 pl-11 pr-4` |
+| Focus state | `focus:ring-2 focus:ring-primary-fixed` |
+| Icon | `text-outline` |
+
+**Pattern notes:**
+Use the pill-shaped search treatment for top-level workspace filtering. Keep a visible semantic label for screen readers, place the Search icon inside the field, and filter without a submit action when the data set is already loaded.
+
+### Program Card
+
+File: `frontend/components/programs/ProgramCard.tsx`
+
+Last updated: 2026-06-18
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-card` |
 | Border | `border border-border` |
 | Border radius | `rounded-xl` |
 | Shadow | `shadow-card` |
-| Spacing | `p-6` |
-| Heading | `text-headline-md text-foreground` |
-| Supporting text | `text-body-md text-muted-foreground` |
-| Accent text | `text-label-sm uppercase tracking-widest text-primary` |
+| Text — title | `text-lg font-semibold leading-snug text-primary` |
+| Text — body | `text-label-md text-muted-foreground` |
+| Content spacing | `p-5` |
+| Neutral action hover | `hover:bg-muted` |
+| Destructive action | `text-error hover:bg-error-container` |
 
 **Pattern notes:**
-This is a temporary protected-route landing state, not the final Programs page. Reuse its semantic card, border, radius, shadow, and text hierarchy for calm centered status or empty-state cards.
+Program cards use a compact 16:9 cover area and a consistent content footer for session count and actions. Missing covers use a calm secondary-container placeholder rather than a random color. Keep edit actions primary-colored and delete actions restrained until hover. Card actions remain icon-only with descriptive accessible labels.
 
 ## Component Workflow
 

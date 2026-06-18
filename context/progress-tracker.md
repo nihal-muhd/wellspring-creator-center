@@ -7,8 +7,8 @@ Update this file after every completed feature. Any AI agent reading this should
 ## Current Status
 
 **Current Phase:** Phase 2 — Programs
-**Last completed:** Protected workspace sidebar
-**Next:** Programs page
+**Last completed:** Programs page
+**Next:** Add Program modal
 
 ---
 
@@ -25,7 +25,7 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ### Phase 2 — Programs
 
-- [ ] 07 Programs page
+- [x] 07 Programs page
 - [ ] 08 Add Program modal
 - [ ] 09 Edit Program modal
 - [ ] 10 Program CRUD APIs
@@ -94,6 +94,8 @@ Update this file after every completed feature. Any AI agent reading this should
 - Protected redirects preserve a safe local `returnTo` path so login can return users to their requested workspace page.
 - Login and signup replace the auth history entry after success, and the `(public-auth)` server layout redirects already-authenticated users away from `/login` and `/signup`.
 - Protected pages now share a responsive workspace sidebar with authenticated creator branding, active Programs/Audit Logs navigation, and functional cookie-based logout.
+- Programs page now matches the dashboard reference with a responsive search toolbar, page header, New Program action, program-card grid, and empty search state; pagination is intentionally omitted.
+- Programs currently use typed frontend demo data until Program CRUD APIs are implemented.
 - Prioritize frontend first inside each phase.
 - Tenant isolation is the highest priority.
 - Every tenant-owned backend query must include `creatorId`.

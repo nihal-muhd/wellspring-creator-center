@@ -4,24 +4,71 @@ import { Plus, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { ProgramCard } from "@/components/programs/ProgramCard";
+import { ProgramFormModal } from "@/components/programs/ProgramFormModal";
 import { demoPrograms } from "@/lib/programs/demoPrograms";
+import type { ProgramFormValues, ProgramSummary } from "@/types/program";
 
 export function ProgramsPageContent() {
+  const [programs, setPrograms] = useState<ProgramSummary[]>(demoPrograms);
   const [searchQuery, setSearchQuery] = useState("");
+  const [modalMode, setModalMode] = useState<"add" | "edit" | null>(null);
+  const [selectedProgram, setSelectedProgram] =
+    useState<ProgramSummary | null>(null);
 
   const filteredPrograms = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase();
 
     if (!normalizedQuery) {
-      return demoPrograms;
+      return programs;
     }
 
-    return demoPrograms.filter((program) =>
+    return programs.filter((program) =>
       `${program.title} ${program.description}`
         .toLowerCase()
         .includes(normalizedQuery),
     );
-  }, [searchQuery]);
+  }, [programs, searchQuery]);
+
+  function openAddModal(): void {
+    setSelectedProgram(null);
+    setModalMode("add");
+  }
+
+  function openEditModal(program: ProgramSummary): void {
+    setSelectedProgram(program);
+    setModalMode("edit");
+  }
+
+  function closeModal(): void {
+    setModalMode(null);
+    setSelectedProgram(null);
+  }
+
+  function saveProgram(values: ProgramFormValues): void {
+    if (modalMode === "edit" && selectedProgram) {
+      setPrograms((currentPrograms) =>
+        currentPrograms.map((program) =>
+          program.id === selectedProgram.id
+            ? {
+                ...program,
+                ...values,
+              }
+            : program,
+        ),
+      );
+    } else {
+      setPrograms((currentPrograms) => [
+        {
+          id: crypto.randomUUID(),
+          sessionCount: 0,
+          ...values,
+        },
+        ...currentPrograms,
+      ]);
+    }
+
+    closeModal();
+  }
 
   return (
     <main className="min-h-dvh bg-background">
@@ -55,7 +102,7 @@ export function ProgramsPageContent() {
 
           <button
             className="inline-flex items-center justify-center gap-2 self-start rounded-md bg-primary px-4 py-2.5 text-label-md font-semibold text-on-primary transition-colors hover:bg-primary-container focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
-            title="Program creation will be connected in the Add Program feature"
+            onClick={openAddModal}
             type="button"
           >
             <Plus aria-hidden="true" size={18} strokeWidth={1.75} />
@@ -70,7 +117,11 @@ export function ProgramsPageContent() {
               className="mt-6 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3"
             >
               {filteredPrograms.map((program) => (
-                <ProgramCard key={program.id} program={program} />
+                <ProgramCard
+                  key={program.id}
+                  onEdit={openEditModal}
+                  program={program}
+                />
               ))}
             </section>
 
@@ -78,7 +129,7 @@ export function ProgramsPageContent() {
               aria-live="polite"
               className="mt-8 border-t border-border pt-5 text-label-sm text-muted-foreground"
             >
-              Showing {filteredPrograms.length} of {demoPrograms.length} programs
+              Showing {filteredPrograms.length} of {programs.length} programs
             </p>
           </>
         ) : (
@@ -98,6 +149,16 @@ export function ProgramsPageContent() {
           </section>
         )}
       </div>
+
+      {modalMode ? (
+        <ProgramFormModal
+          key={`${modalMode}-${selectedProgram?.id ?? "new"}`}
+          mode={modalMode}
+          onClose={closeModal}
+          onSave={saveProgram}
+          program={selectedProgram ?? undefined}
+        />
+      ) : null}
     </main>
   );
 }

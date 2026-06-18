@@ -11,9 +11,10 @@ import type { ProgramSummary } from "@/types/program";
 
 type ProgramCardProps = {
   program: ProgramSummary;
+  onEdit: (program: ProgramSummary) => void;
 };
 
-export function ProgramCard({ program }: ProgramCardProps) {
+export function ProgramCard({ program, onEdit }: ProgramCardProps) {
   return (
     <article className="group overflow-hidden rounded-xl border border-border bg-card shadow-card">
       <div className="relative aspect-video overflow-hidden bg-surface-container">
@@ -31,6 +32,7 @@ export function ProgramCard({ program }: ProgramCardProps) {
             fill
             sizes="(min-width: 1280px) 30vw, (min-width: 768px) 45vw, 100vw"
             src={program.coverImageUrl}
+            unoptimized={program.coverImageUrl.startsWith("data:")}
           />
         ) : (
           <div className="flex h-full items-center justify-center bg-secondary-container text-primary">
@@ -71,7 +73,8 @@ export function ProgramCard({ program }: ProgramCardProps) {
             <button
               aria-label={`Edit ${program.title}`}
               className="rounded-md p-1.5 text-primary transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-              title="Edit will be connected with Program CRUD"
+              onClick={() => onEdit(program)}
+              title={`Edit ${program.title}`}
               type="button"
             >
               <Pen aria-hidden="true" size={16} strokeWidth={1.75} />

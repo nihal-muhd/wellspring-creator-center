@@ -192,6 +192,66 @@ Last updated: 2026-06-18
 **Pattern notes:**
 Program cards use a compact 16:9 cover area and a consistent content footer for session count and actions. Missing covers use a calm secondary-container placeholder rather than a random color. Keep edit actions primary-colored and delete actions restrained until hover. Card actions remain icon-only with descriptive accessible labels.
 
+### Program Form Modal
+
+File: `frontend/components/programs/ProgramFormModal.tsx`
+
+Last updated: 2026-06-18
+
+| Property | Class |
+| --- | --- |
+| Backdrop | `bg-inverse-surface/35 backdrop-blur-sm` |
+| Background | `bg-card` |
+| Border | `border border-border` |
+| Border radius | `rounded-xl` |
+| Shadow | `shadow-card` |
+| Header/footer border | `border-border` |
+| Heading | `text-headline-md text-primary` |
+| Content spacing | `px-6 py-5` |
+| Footer background | `bg-muted` |
+
+**Pattern notes:**
+Use this shared dialog shell for add/edit workspace forms. The header, scrollable form body, and tonal footer are visually separated with soft semantic borders. Modals close through the close icon, Cancel, backdrop, or Escape; lock body scrolling and contain keyboard focus while open.
+
+### Workspace Modal Form Fields
+
+File: `frontend/components/programs/ProgramFormModal.tsx`
+
+Last updated: 2026-06-18
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-muted focus:bg-card` |
+| Border | `border border-transparent focus:border-primary` |
+| Border radius | `rounded-md` |
+| Text | `text-body-md text-foreground placeholder:text-outline` |
+| Spacing | `px-4 py-2.5` |
+| Focus state | `focus:ring-2 focus:ring-primary-fixed` |
+| Invalid state | `aria-invalid:border-error aria-invalid:ring-error-container` |
+| Label | `text-label-sm uppercase tracking-wide text-muted-foreground` |
+
+**Pattern notes:**
+Workspace modal fields use compact uppercase labels and the same soft tonal focus treatment as auth inputs. Keep human-readable validation next to the related field. Textareas may resize vertically but should start at a practical minimum height.
+
+### Program Photo Picker
+
+File: `frontend/components/programs/ProgramFormModal.tsx`
+
+Last updated: 2026-06-18
+
+| Property | Class |
+| --- | --- |
+| Preview border | `border border-border` |
+| Picker border | `border border-dashed border-outline-variant` |
+| Border radius | `rounded-md` |
+| Background | `bg-card` |
+| Text | `text-label-sm text-muted-foreground` |
+| Hover state | `hover:border-primary hover:bg-muted hover:text-primary` |
+| Remove action | `bg-inverse-surface/75 text-inverse-on-surface` |
+
+**Pattern notes:**
+Show a square local preview beside the upload control. Accept only JPEG, PNG, and WebP, show file guidance, and keep remove/change actions available before submission. This is a frontend preview pattern only; S3 persistence is connected in the upload phase.
+
 ## Component Workflow
 
 Before building any component:

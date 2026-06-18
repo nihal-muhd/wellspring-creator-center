@@ -7,8 +7,8 @@ Update this file after every completed feature. Any AI agent reading this should
 ## Current Status
 
 **Current Phase:** Phase 2 — Programs
-**Last completed:** Programs page
-**Next:** Add Program modal
+**Last completed:** Add/Edit Program modals
+**Next:** Program CRUD APIs
 
 ---
 
@@ -26,8 +26,8 @@ Update this file after every completed feature. Any AI agent reading this should
 ### Phase 2 — Programs
 
 - [x] 07 Programs page
-- [ ] 08 Add Program modal
-- [ ] 09 Edit Program modal
+- [x] 08 Add Program modal
+- [x] 09 Edit Program modal
 - [ ] 10 Program CRUD APIs
 - [ ] 11 Program image upload connection
 - [ ] 12 Program audit logs
@@ -96,6 +96,8 @@ Update this file after every completed feature. Any AI agent reading this should
 - Protected pages now share a responsive workspace sidebar with authenticated creator branding, active Programs/Audit Logs navigation, and functional cookie-based logout.
 - Programs page now matches the dashboard reference with a responsive search toolbar, page header, New Program action, program-card grid, and empty search state; pagination is intentionally omitted.
 - Programs currently use typed frontend demo data until Program CRUD APIs are implemented.
+- Add and edit use one accessible Program Form modal with title validation, optional description, local image selection/preview, keyboard focus containment, and responsive scrolling.
+- Program create/update currently modifies frontend state only; image previews are local data URLs until Program CRUD and S3 upload flows are connected.
 - Prioritize frontend first inside each phase.
 - Tenant isolation is the highest priority.
 - Every tenant-owned backend query must include `creatorId`.

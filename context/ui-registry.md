@@ -46,16 +46,17 @@ Last updated: 2026-06-18
 | Property | Class |
 | --- | --- |
 | Background | `bg-muted focus:bg-card` |
-| Border | `border border-transparent focus:border-primary` |
+| Border | `border border-transparent focus:border-primary aria-invalid:border-error` |
 | Border radius | `rounded-md` |
 | Text — primary | `text-body-md text-foreground` |
 | Text — placeholder | `placeholder:text-outline` |
 | Spacing | `px-4 py-2.5 sm:py-3` |
 | Focus state | `outline-none focus:ring-2 focus:ring-primary-fixed` |
+| Invalid state | `aria-invalid:ring-2 aria-invalid:ring-error-container` |
 | Label | `text-label-md text-foreground` |
 
 **Pattern notes:**
-Inputs use a soft tonal background at rest and become white with a primary border and soft fixed-primary ring on focus. Use compact mobile sizing with the standard size restored from `sm`; password inputs reserve `pr-20` for the visibility control.
+Inputs use a soft tonal background at rest and become white with a primary border and soft fixed-primary ring on focus. Invalid inputs use the semantic error border and error-container ring, with a `text-label-sm text-error` message linked through `aria-describedby`. Use compact mobile sizing with the standard size restored from `sm`; password inputs reserve `pr-20` for the visibility control.
 
 ### Primary Form Button
 
@@ -76,6 +77,23 @@ Last updated: 2026-06-18
 
 **Pattern notes:**
 Primary form actions span the form width. Keep labels direct and action-oriented.
+
+### Form Error Alert
+
+File: `frontend/app/signup/SignupForm.tsx`
+
+Last updated: 2026-06-18
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-error-container` |
+| Border | `none` |
+| Border radius | `rounded-md` |
+| Text | `text-label-sm text-on-error-container` |
+| Spacing | `px-3 py-2` |
+
+**Pattern notes:**
+Use `role="alert"` for request-level failures. Keep field validation beside its input; reserve this alert for API or form-wide errors.
 
 ### Inline Auth Link
 

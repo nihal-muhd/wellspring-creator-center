@@ -7,8 +7,8 @@ Update this file after every completed feature. Any AI agent reading this should
 ## Current Status
 
 **Current Phase:** Phase 1 — Auth
-**Last completed:** Signup page
-**Next:** Signup API
+**Last completed:** Signup API flow
+**Next:** Login page
 
 ---
 
@@ -17,7 +17,7 @@ Update this file after every completed feature. Any AI agent reading this should
 ### Phase 1 — Auth
 
 - [x] 01 Signup page
-- [ ] 02 Signup API
+- [x] 02 Signup API
 - [ ] 03 Login page
 - [ ] 04 Login API
 - [ ] 05 Auth me API

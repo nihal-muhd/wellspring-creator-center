@@ -85,6 +85,7 @@ Update this file after every completed feature. Any AI agent reading this should
 
 - Tailwind v4 is configured through `frontend/app/globals.css` using CSS-first `@theme` tokens.
 - Plus Jakarta Sans is connected through `next/font/google` and the `font-sans` utility.
+- Signup frontend uses reusable layers: auth components, shared auth types, validation/API helpers, and a state orchestration hook.
 - Prioritize frontend first inside each phase.
 - Tenant isolation is the highest priority.
 - Every tenant-owned backend query must include `creatorId`.

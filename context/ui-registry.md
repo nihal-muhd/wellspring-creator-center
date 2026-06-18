@@ -39,7 +39,7 @@ Use a single-column form on mobile and a balanced split screen from `lg` upward.
 
 ### Form Input
 
-File: `frontend/app/signup/SignupForm.tsx`
+Files: `frontend/components/auth/SignupField.tsx`, `frontend/components/auth/SignupPasswordField.tsx`
 
 Last updated: 2026-06-18
 
@@ -60,7 +60,7 @@ Inputs use a soft tonal background at rest and become white with a primary borde
 
 ### Primary Form Button
 
-File: `frontend/app/signup/SignupForm.tsx`
+File: `frontend/components/auth/SignupForm.tsx`
 
 Last updated: 2026-06-18
 
@@ -80,7 +80,7 @@ Primary form actions span the form width. Keep labels direct and action-oriented
 
 ### Form Error Alert
 
-File: `frontend/app/signup/SignupForm.tsx`
+File: `frontend/components/auth/SignupForm.tsx`
 
 Last updated: 2026-06-18
 

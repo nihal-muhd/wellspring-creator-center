@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
-import { SignupForm } from "./SignupForm";
+import { SignupForm } from "@/components/auth/SignupForm";
 
 export const metadata: Metadata = {
   title: "Create your workspace",
@@ -39,9 +39,6 @@ export default function SignupPage() {
         <div className="flex min-h-0 flex-1 items-center py-3 sm:py-5">
           <div className="mx-auto w-full max-w-lg">
             <div className="mb-4 sm:mb-6">
-              {/* <p className="mb-1 text-label-sm uppercase tracking-widest text-primary">
-                Start creating
-              </p> */}
               <h1 className="text-headline-lg text-foreground">
                 Welcome to Wellspring
               </h1>

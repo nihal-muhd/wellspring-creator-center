@@ -8,7 +8,23 @@ export const metadata: Metadata = {
   description: "Log in to your Wellspring creator workspace.",
 };
 
-export default function LoginPage() {
+type LoginPageProps = {
+  searchParams: Promise<{
+    returnTo?: string | string[];
+  }>;
+};
+
+export default async function LoginPage({
+  searchParams,
+}: LoginPageProps) {
+  const requestedReturnTo = (await searchParams).returnTo;
+  const returnTo =
+    typeof requestedReturnTo === "string" &&
+    requestedReturnTo.startsWith("/") &&
+    !requestedReturnTo.startsWith("//")
+      ? requestedReturnTo
+      : "/programs";
+
   return (
     <AuthLayout
       title="Welcome back"
@@ -17,7 +33,7 @@ export default function LoginPage() {
       footerLinkHref="/signup"
       footerLinkLabel="Create an account"
     >
-      <LoginForm />
+      <LoginForm returnTo={returnTo} />
     </AuthLayout>
   );
 }

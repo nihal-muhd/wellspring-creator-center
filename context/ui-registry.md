@@ -110,6 +110,29 @@ Last updated: 2026-06-18
 **Pattern notes:**
 Use this pattern for switching between login and signup without making the secondary route compete with the primary form action.
 
+## Protected Workspace UI
+
+### Protected Workspace Placeholder Card
+
+File: `frontend/app/(protected)/programs/page.tsx`
+
+Last updated: 2026-06-18
+
+| Property | Class |
+| --- | --- |
+| Page background | `bg-background` |
+| Card background | `bg-card` |
+| Border | `border border-border` |
+| Border radius | `rounded-xl` |
+| Shadow | `shadow-card` |
+| Spacing | `p-6` |
+| Heading | `text-headline-md text-foreground` |
+| Supporting text | `text-body-md text-muted-foreground` |
+| Accent text | `text-label-sm uppercase tracking-widest text-primary` |
+
+**Pattern notes:**
+This is a temporary protected-route landing state, not the final Programs page. Reuse its semantic card, border, radius, shadow, and text hierarchy for calm centered status or empty-state cards.
+
 ## Component Workflow
 
 Before building any component:

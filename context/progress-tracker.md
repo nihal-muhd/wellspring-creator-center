@@ -6,9 +6,9 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ## Current Status
 
-**Current Phase:** Phase 1 — Auth
-**Last completed:** Auth me API
-**Next:** Protected frontend route handling
+**Current Phase:** Phase 2 — Programs
+**Last completed:** Protected frontend route handling
+**Next:** Programs page
 
 ---
 
@@ -21,7 +21,7 @@ Update this file after every completed feature. Any AI agent reading this should
 - [x] 03 Login page
 - [x] 04 Login API
 - [x] 05 Auth me API
-- [ ] 06 Protected frontend route handling
+- [x] 06 Protected frontend route handling
 
 ### Phase 2 — Programs
 
@@ -90,6 +90,9 @@ Update this file after every completed feature. Any AI agent reading this should
 - Login API validates normalized credentials, returns a generic `401` for invalid credentials, and sets the 7-day HTTP-only `access_token` cookie.
 - Auth middleware reads and verifies the `access_token` cookie, attaches typed identity to the request, and returns generic `401` responses for missing or invalid tokens.
 - Auth me API revalidates both `userId` and `creatorId` against the database before returning safe user and creator details.
+- Next.js `proxy.ts` performs an optimistic cookie-presence check for protected routes, while the `(protected)` server layout securely validates the session through `/auth/me`.
+- Protected redirects preserve a safe local `returnTo` path so login can return users to their requested workspace page.
+- Login and signup replace the auth history entry after success, and the `(public-auth)` server layout redirects already-authenticated users away from `/login` and `/signup`.
 - Prioritize frontend first inside each phase.
 - Tenant isolation is the highest priority.
 - Every tenant-owned backend query must include `creatorId`.

@@ -40,7 +40,7 @@ export function useSignupForm() {
 
     try {
       await createWorkspace(values);
-      router.push("/programs");
+      router.replace("/programs");
     } catch (error) {
       setFormError(getSignupErrorMessage(error));
     } finally {

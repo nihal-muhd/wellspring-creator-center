@@ -19,3 +19,22 @@ export type AuthApiErrorResponse = {
   success: false;
   error: string;
 };
+
+export type AuthSession = {
+  creator: {
+    id: string;
+    name: string;
+    brandName: string | null;
+  };
+  user: {
+    id: string;
+    creatorId: string;
+    email: string;
+    role: "OWNER" | "ADMIN";
+  };
+};
+
+export type AuthSessionResponse = {
+  success: true;
+  data: AuthSession;
+};

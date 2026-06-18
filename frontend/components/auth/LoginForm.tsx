@@ -4,14 +4,18 @@ import { LoginPasswordField } from "@/components/auth/LoginPasswordField";
 import { SignupField } from "@/components/auth/SignupField";
 import { useLoginForm } from "@/hooks/useLoginForm";
 
-export function LoginForm() {
+type LoginFormProps = {
+  returnTo?: string;
+};
+
+export function LoginForm({ returnTo }: LoginFormProps) {
   const {
     clearFieldError,
     fieldErrors,
     formError,
     handleSubmit,
     isSubmitting,
-  } = useLoginForm();
+  } = useLoginForm(returnTo);
 
   return (
     <form

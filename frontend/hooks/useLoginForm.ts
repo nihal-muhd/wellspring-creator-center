@@ -8,7 +8,7 @@ import { getLoginErrorMessage, login } from "@/lib/auth/login";
 import { getLoginValues, validateLogin } from "@/lib/validation/login";
 import type { LoginField, LoginFieldErrors } from "@/types/auth";
 
-export function useLoginForm() {
+export function useLoginForm(returnTo = "/programs") {
   const router = useRouter();
   const [fieldErrors, setFieldErrors] = useState<LoginFieldErrors>({});
   const [formError, setFormError] = useState("");
@@ -31,7 +31,7 @@ export function useLoginForm() {
 
     try {
       await login(values);
-      router.push("/programs");
+      router.replace(returnTo);
     } catch (error) {
       setFormError(getLoginErrorMessage(error));
     } finally {

@@ -8,3 +8,14 @@ export type SignupApiErrorResponse = {
   success: false;
   error: string;
 };
+
+export type LoginField = "email" | "password";
+
+export type LoginValues = Record<LoginField, string>;
+
+export type LoginFieldErrors = Partial<Record<LoginField, string>>;
+
+export type AuthApiErrorResponse = {
+  success: false;
+  error: string;
+};

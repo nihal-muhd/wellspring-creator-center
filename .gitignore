@@ -26,6 +26,7 @@ backend/dist/
 # Prisma
 backend/prisma/migrations/dev.db
 backend/prisma/dev.db
+backend/src/generated/
 
 *.agents
 memory.md

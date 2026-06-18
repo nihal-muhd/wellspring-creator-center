@@ -15,6 +15,26 @@ export async function findUserByEmail(email: string) {
   });
 }
 
+export async function findUserCredentialsByEmail(email: string) {
+  return prisma.user.findUnique({
+    where: { email },
+    select: {
+      id: true,
+      creatorId: true,
+      email: true,
+      passwordHash: true,
+      role: true,
+      creator: {
+        select: {
+          id: true,
+          name: true,
+          brandName: true,
+        },
+      },
+    },
+  });
+}
+
 export async function createCreatorOwner(input: CreateCreatorOwnerInput) {
   return prisma.$transaction(async (transaction) => {
     const creator = await transaction.creator.create({

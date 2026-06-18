@@ -23,3 +23,17 @@ export const signupSchema = z.object({
 });
 
 export type SignupInput = z.infer<typeof signupSchema>;
+
+export const loginSchema = z.object({
+  email: z
+    .email("Enter a valid email address.")
+    .trim()
+    .toLowerCase()
+    .max(254, "Email address is too long."),
+  password: z
+    .string()
+    .min(1, "Password is required.")
+    .max(72, "Password must be 72 characters or fewer."),
+});
+
+export type LoginInput = z.infer<typeof loginSchema>;

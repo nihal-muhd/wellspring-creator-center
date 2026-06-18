@@ -1,10 +1,20 @@
 import type { NextFunction, Request, Response } from "express";
 
 import { createAccessToken } from "../../lib/auth-token";
-import { signupSchema } from "./auth.schema";
-import { signup } from "./auth.service";
+import { loginSchema, signupSchema } from "./auth.schema";
+import { login, signup } from "./auth.service";
 
 const ACCESS_TOKEN_MAX_AGE = 7 * 24 * 60 * 60 * 1000;
+
+function setAccessTokenCookie(res: Response, accessToken: string): void {
+  res.cookie("access_token", accessToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: ACCESS_TOKEN_MAX_AGE,
+    path: "/",
+  });
+}
 
 export async function signupController(
   req: Request,
@@ -20,15 +30,34 @@ export async function signupController(
       email: result.user.email,
     });
 
-    res.cookie("access_token", accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: ACCESS_TOKEN_MAX_AGE,
-      path: "/",
-    });
+    setAccessTokenCookie(res, accessToken);
 
     res.status(201).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function loginController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const input = loginSchema.parse(req.body);
+    const result = await login(input);
+    const accessToken = createAccessToken({
+      userId: result.user.id,
+      creatorId: result.user.creatorId,
+      email: result.user.email,
+    });
+
+    setAccessTokenCookie(res, accessToken);
+
+    res.status(200).json({
       success: true,
       data: result,
     });

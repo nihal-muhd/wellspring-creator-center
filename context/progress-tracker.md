@@ -7,8 +7,8 @@ Update this file after every completed feature. Any AI agent reading this should
 ## Current Status
 
 **Current Phase:** Phase 1 — Auth
-**Last completed:** Signup API flow
-**Next:** Login page
+**Last completed:** Login API
+**Next:** Auth me API
 
 ---
 
@@ -18,8 +18,8 @@ Update this file after every completed feature. Any AI agent reading this should
 
 - [x] 01 Signup page
 - [x] 02 Signup API
-- [ ] 03 Login page
-- [ ] 04 Login API
+- [x] 03 Login page
+- [x] 04 Login API
 - [ ] 05 Auth me API
 - [ ] 06 Protected frontend route handling
 
@@ -86,6 +86,8 @@ Update this file after every completed feature. Any AI agent reading this should
 - Tailwind v4 is configured through `frontend/app/globals.css` using CSS-first `@theme` tokens.
 - Plus Jakarta Sans is connected through `next/font/google` and the `font-sans` utility.
 - Signup frontend uses reusable layers: auth components, shared auth types, validation/API helpers, and a state orchestration hook.
+- Signup and login share `AuthLayout`; both forms use the same input, action, validation, loading, and request-error patterns.
+- Login API validates normalized credentials, returns a generic `401` for invalid credentials, and sets the 7-day HTTP-only `access_token` cookie.
 - Prioritize frontend first inside each phase.
 - Tenant isolation is the highest priority.
 - Every tenant-owned backend query must include `creatorId`.

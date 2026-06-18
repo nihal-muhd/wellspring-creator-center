@@ -20,7 +20,7 @@ Living document. Updated after every component is built. Read this before buildi
 
 ### Auth Split-Screen Shell
 
-File: `frontend/app/signup/page.tsx`
+File: `frontend/components/auth/AuthLayout.tsx`
 
 Last updated: 2026-06-18
 
@@ -35,11 +35,11 @@ Last updated: 2026-06-18
 | Accent text | `text-label-sm uppercase tracking-widest text-primary` |
 
 **Pattern notes:**
-Use a single-column form on mobile and a balanced split screen from `lg` upward. The shell uses `h-dvh overflow-hidden`; compact mobile spacing keeps the complete form within the viewport without page scrolling. The image panel is decorative support and the mobile footer may be hidden to preserve usable form space.
+Use this shared shell for signup and login so branding, responsive behavior, image treatment, heading spacing, footer copy placement, and route-switch links stay identical. Use a single-column form on mobile and a balanced split screen from `lg` upward. The shell uses `h-dvh overflow-hidden`; compact mobile spacing keeps the complete form within the viewport without page scrolling. The image panel is decorative support and the mobile footer may be hidden to preserve usable form space.
 
 ### Form Input
 
-Files: `frontend/components/auth/SignupField.tsx`, `frontend/components/auth/SignupPasswordField.tsx`
+Files: `frontend/components/auth/SignupField.tsx`, `frontend/components/auth/SignupPasswordField.tsx`, `frontend/components/auth/LoginPasswordField.tsx`
 
 Last updated: 2026-06-18
 
@@ -56,11 +56,11 @@ Last updated: 2026-06-18
 | Label | `text-label-md text-foreground` |
 
 **Pattern notes:**
-Inputs use a soft tonal background at rest and become white with a primary border and soft fixed-primary ring on focus. Invalid inputs use the semantic error border and error-container ring, with a `text-label-sm text-error` message linked through `aria-describedby`. Use compact mobile sizing with the standard size restored from `sm`; password inputs reserve `pr-20` for the visibility control.
+Inputs use a soft tonal background at rest and become white with a primary border and soft fixed-primary ring on focus. Invalid inputs use the semantic error border and error-container ring, with a `text-label-sm text-error` message linked through `aria-describedby`. Use compact mobile sizing with the standard size restored from `sm`; password inputs reserve `pr-20` for the visibility control. Login uses `current-password`; signup uses `new-password`.
 
 ### Primary Form Button
 
-File: `frontend/components/auth/SignupForm.tsx`
+Files: `frontend/components/auth/SignupForm.tsx`, `frontend/components/auth/LoginForm.tsx`
 
 Last updated: 2026-06-18
 
@@ -80,7 +80,7 @@ Primary form actions span the form width. Keep labels direct and action-oriented
 
 ### Form Error Alert
 
-File: `frontend/components/auth/SignupForm.tsx`
+Files: `frontend/components/auth/SignupForm.tsx`, `frontend/components/auth/LoginForm.tsx`
 
 Last updated: 2026-06-18
 
@@ -97,7 +97,7 @@ Use `role="alert"` for request-level failures. Keep field validation beside its 
 
 ### Inline Auth Link
 
-File: `frontend/app/signup/page.tsx`
+File: `frontend/components/auth/AuthLayout.tsx`
 
 Last updated: 2026-06-18
 

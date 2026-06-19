@@ -1,5 +1,7 @@
 # Wellspring
 
+https://www.loom.com/share/8d4b1bfd266c424da85482b7ce2c5ded
+
 Wellspring is a multi-tenant content management platform for wellness creators.
 
 Creators can sign up, manage programs, add sessions, reorder sessions, import sessions from CSV, upload media through secure S3 pre-signed URLs, and view audit logs for admin actions.

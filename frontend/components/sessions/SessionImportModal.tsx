@@ -419,14 +419,16 @@ Breathing Practice,0.2,2,Anu,"breathing,sleep",AUDIO,https://example.com/breathi
             >
               Close
             </button>
-            <button
-              className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2.5 text-label-md font-semibold text-on-primary transition-colors hover:bg-primary-container focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-60"
-              disabled={!selectedFile || isSubmitting}
-              type="submit"
-            >
-              <FileUp aria-hidden="true" size={18} strokeWidth={1.75} />
-              {isSubmitting ? "Importing..." : "Import Sessions"}
-            </button>
+            {!result ? (
+              <button
+                className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2.5 text-label-md font-semibold text-on-primary transition-colors hover:bg-primary-container focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-60"
+                disabled={!selectedFile || isSubmitting}
+                type="submit"
+              >
+                <FileUp aria-hidden="true" size={18} strokeWidth={1.75} />
+                {isSubmitting ? "Importing..." : "Import Sessions"}
+              </button>
+            ) : null}
           </footer>
         </form>
       </section>

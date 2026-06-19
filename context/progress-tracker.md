@@ -129,6 +129,7 @@ Update this file after every completed feature. Any AI agent reading this should
 - Import persistence verifies tenant-owned program access and transactionally creates valid sessions, the `BulkImport` result, and one `BULK_IMPORT_CREATED` audit record.
 - Reusing the same creator-scoped `clientImportId` returns the stored result with `idempotentReplay: true` and does not create sessions or another audit record.
 - The import modal now shows request errors, imported/failed row counts, idempotent replay status, and a scrollable row-error list, then refreshes the Program Detail session list and totals.
+- After a successful import response, the modal hides the Import Sessions action and leaves only Close, preventing accidental duplicate API calls from the completed state.
 - CSV import verification passed backend TypeScript build, frontend ESLint, frontend standalone TypeScript checking, parser line-number inspection, and `git diff --check`.
 - Prioritize frontend first inside each phase.
 - Tenant isolation is the highest priority.

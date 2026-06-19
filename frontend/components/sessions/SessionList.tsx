@@ -1,9 +1,10 @@
-import { AudioLines, Film, Leaf } from "lucide-react";
+import { AudioLines, Film, Leaf, Pen } from "lucide-react";
 import Image from "next/image";
 
 import type { SessionSummary } from "@/types/session";
 
 type SessionListProps = {
+  onEdit: (session: SessionSummary) => void;
   sessions: SessionSummary[];
 };
 
@@ -11,7 +12,7 @@ function formatDuration(duration: number): string {
   return `${duration} min`;
 }
 
-export function SessionList({ sessions }: SessionListProps) {
+export function SessionList({ onEdit, sessions }: SessionListProps) {
   if (sessions.length === 0) {
     return (
       <section className="rounded-xl border border-border bg-card p-8 text-center shadow-card">
@@ -102,6 +103,16 @@ export function SessionList({ sessions }: SessionListProps) {
                   ))}
                 </ul>
               ) : null}
+
+              <button
+                aria-label={`Edit ${session.title}`}
+                className="self-start rounded-md p-2 text-primary transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary sm:self-center"
+                onClick={() => onEdit(session)}
+                title={`Edit ${session.title}`}
+                type="button"
+              >
+                <Pen aria-hidden="true" size={18} strokeWidth={1.75} />
+              </button>
             </div>
           </article>
         );

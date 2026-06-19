@@ -1,6 +1,14 @@
 import { AppError } from "../../lib/app-error";
 import { findProgramByIdForCreator } from "../programs/programs.repository";
-import { findProgramSessionsForCreator } from "./sessions.repository";
+import {
+  createSessionForCreator,
+  findProgramSessionsForCreator,
+  updateSessionForCreator,
+} from "./sessions.repository";
+import type {
+  CreateSessionInput,
+  UpdateSessionInput,
+} from "./sessions.schema";
 
 export async function listProgramSessions(
   programId: string,
@@ -13,4 +21,44 @@ export async function listProgramSessions(
   }
 
   return findProgramSessionsForCreator(programId, creatorId);
+}
+
+export async function createSession(
+  programId: string,
+  creatorId: string,
+  actorId: string,
+  input: CreateSessionInput,
+) {
+  const session = await createSessionForCreator(
+    programId,
+    creatorId,
+    actorId,
+    input,
+  );
+
+  if (!session) {
+    throw new AppError("Program not found.", 404);
+  }
+
+  return session;
+}
+
+export async function updateSession(
+  sessionId: string,
+  creatorId: string,
+  actorId: string,
+  input: UpdateSessionInput,
+) {
+  const session = await updateSessionForCreator(
+    sessionId,
+    creatorId,
+    actorId,
+    input,
+  );
+
+  if (!session) {
+    throw new AppError("Session not found.", 404);
+  }
+
+  return session;
 }

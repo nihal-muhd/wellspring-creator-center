@@ -5,7 +5,11 @@ import type {
   ProgramApiErrorResponse,
   ProgramApiSuccessResponse,
 } from "@/types/program";
-import type { SessionApiRecord, SessionSummary } from "@/types/session";
+import type {
+  SessionApiRecord,
+  SessionMutationInput,
+  SessionSummary,
+} from "@/types/session";
 
 function mapSession(record: SessionApiRecord): SessionSummary {
   return {
@@ -33,6 +37,28 @@ export async function getProgramSessions(
   return response.data.data.map(mapSession);
 }
 
+export async function createSession(
+  programId: string,
+  input: SessionMutationInput,
+): Promise<SessionSummary> {
+  const response = await api.post<
+    ProgramApiSuccessResponse<SessionApiRecord>
+  >(`/programs/${programId}/sessions`, input);
+
+  return mapSession(response.data.data);
+}
+
+export async function updateSession(
+  sessionId: string,
+  input: SessionMutationInput,
+): Promise<SessionSummary> {
+  const response = await api.patch<
+    ProgramApiSuccessResponse<SessionApiRecord>
+  >(`/sessions/${sessionId}`, input);
+
+  return mapSession(response.data.data);
+}
+
 export function getSessionsErrorMessage(error: unknown): string {
   if (error instanceof AxiosError) {
     const response = error.response?.data as
@@ -45,4 +71,18 @@ export function getSessionsErrorMessage(error: unknown): string {
   }
 
   return "We could not load this program and its sessions. Please try again.";
+}
+
+export function getSessionMutationErrorMessage(error: unknown): string {
+  if (error instanceof AxiosError) {
+    const response = error.response?.data as
+      | ProgramApiErrorResponse
+      | undefined;
+
+    if (response?.error) {
+      return response.error;
+    }
+  }
+
+  return "We could not save this session. Please try again.";
 }

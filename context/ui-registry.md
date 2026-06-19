@@ -271,6 +271,72 @@ Last updated: 2026-06-18
 **Pattern notes:**
 Show a square local preview beside the upload control. Accept only JPEG, PNG, and WebP, show file guidance, and keep remove/change actions available before submission. This is a frontend preview pattern only; S3 persistence is connected in the upload phase.
 
+### Program Detail Page
+
+File: `frontend/components/programs/ProgramDetailPageContent.tsx`
+
+Last updated: 2026-06-19
+
+| Property | Class |
+| --- | --- |
+| Page background | `bg-background` |
+| Toolbar | `border-b border-border bg-card/80 backdrop-blur-sm` |
+| Heading | `text-headline-lg text-primary` |
+| Supporting text | `text-body-md text-muted-foreground` |
+| Summary panel | `rounded-xl border border-border bg-muted` |
+| Primary action | `rounded-md bg-primary text-on-primary hover:bg-primary-container` |
+| Secondary action | `rounded-md border border-border bg-card hover:bg-muted` |
+| Content spacing | `px-4 py-8 sm:px-6 lg:px-8 lg:py-10` |
+
+**Pattern notes:**
+Detail workspaces use the same translucent top toolbar as collection pages, followed by a spacious title/action header. Summary and filter controls share one muted rounded panel. Primary and secondary actions reuse established workspace button treatments, while unavailable future-phase actions remain visibly disabled.
+
+### Session List Item
+
+File: `frontend/components/sessions/SessionList.tsx`
+
+Last updated: 2026-06-19
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-card` |
+| Border | `border border-border` |
+| Border radius | `rounded-xl` |
+| Shadow | `shadow-card` |
+| Text — title | `text-lg font-semibold leading-snug text-foreground` |
+| Text — metadata | `text-label-md text-muted-foreground` |
+| Accent text | `text-label-sm uppercase tracking-wide text-primary` |
+| Content spacing | `p-4 sm:p-5` |
+| Tag | `rounded-full bg-secondary-container text-on-secondary-container` |
+| Edit hover | `hover:bg-muted` |
+
+**Pattern notes:**
+Session rows use a responsive card/list hybrid: media preview first, session metadata in the flexible center, calm tag chips, then a compact edit action. Keep the list non-draggable until the reorder phase; do not introduce drag handles early.
+
+### Session Form Modal
+
+File: `frontend/components/sessions/SessionFormModal.tsx`
+
+Last updated: 2026-06-19
+
+| Property | Class |
+| --- | --- |
+| Backdrop | `bg-inverse-surface/35 backdrop-blur-sm` |
+| Background | `bg-card` |
+| Border | `border border-border` |
+| Border radius | `rounded-xl` |
+| Shadow | `shadow-card` |
+| Heading | `text-headline-md text-primary` |
+| Field background | `bg-muted focus:bg-card` |
+| Field border | `border border-transparent focus:border-primary` |
+| Field radius | `rounded-md` |
+| Label | `text-label-sm uppercase tracking-wide text-muted-foreground` |
+| Footer | `border-t border-border bg-muted px-6 py-4` |
+| Primary action | `rounded-md bg-primary text-on-primary hover:bg-primary-container` |
+
+**Pattern notes:**
+Session create and edit share one accessible modal shell matching Program Form Modal behavior: body scroll lock, focus containment, Escape/backdrop close, disabled controls while saving, inline validation, and request-level error alerts. Duration is entered as decimal hours and converted to whole minutes before submission. Tags use removable secondary-container chips. Media selection is a local preview only until the S3 phase.
+
 ## Component Workflow
 
 Before building any component:

@@ -29,3 +29,22 @@ export type SessionApiRecord = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type SessionFormValues = {
+  title: string;
+  duration: number;
+  instructorName: string;
+  tags: string[];
+  mediaType?: SessionMediaType;
+  removePersistedMedia: boolean;
+};
+
+export type SessionMutationInput = {
+  title: string;
+  duration: number;
+  instructorName: string | null;
+  tags: string[];
+  mediaType: SessionMediaType | null;
+  mediaUrl?: string | null;
+  mediaKey?: string | null;
+};

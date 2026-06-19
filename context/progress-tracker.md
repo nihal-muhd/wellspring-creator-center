@@ -6,9 +6,9 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ## Current Status
 
-**Current Phase:** Phase 2 — Programs
-**Last completed:** Program audit logs
-**Next:** Program image upload connection
+**Current Phase:** Phase 3 — Program Detail + Sessions
+**Last completed:** Add/Edit Session modal with create/update APIs
+**Next:** Session delete API and action
 
 ---
 
@@ -34,10 +34,10 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ### Phase 3 — Program Detail + Sessions
 
-- [ ] 13 Program Detail page
-- [ ] 14 Session list UI
-- [ ] 15 Add Session modal
-- [ ] 16 Edit Session modal
+- [x] 13 Program Detail page
+- [x] 14 Session list UI
+- [x] 15 Add Session modal
+- [x] 16 Edit Session modal
 - [ ] 17 Session CRUD APIs
 - [ ] 18 Session media upload connection - Skip for now
 - [ ] 19 Session audit logs
@@ -106,6 +106,13 @@ Update this file after every completed feature. Any AI agent reading this should
 - Program mutations and their audit records run in one Prisma transaction so they succeed or roll back together.
 - Audit identity comes from the verified JWT (`creatorId` and `userId`); cross-tenant misses return `404` without creating audit records.
 - Program update audit metadata stores changed fields with previous/new values, while delete metadata preserves final program details and session count.
+- Program cards now link to a responsive Program Detail page with program editing, session totals, total duration, media filtering, loading, empty, and request-error states.
+- Session list reads from `GET /programs/:programId/sessions`; program ownership and every session query are scoped by authenticated `creatorId`.
+- Add and edit sessions share one accessible Session Form modal with decimal-hour duration input, conversion to integer minutes, instructor details, removable tags, and local audio/video preview.
+- Session create uses `POST /programs/:programId/sessions`, assigns the next position inside a transaction, and writes a `SESSION_CREATED` audit record.
+- Session update uses `PATCH /sessions/:sessionId`, scopes lookup and update by `creatorId`, preserves program ownership, and writes a `SESSION_UPDATED` audit record with changed fields.
+- Session media file selection is preview-only until the S3 phase; selected local files are never sent as data URLs or stored as permanent media.
+- Session delete is still pending, so Phase 3 item 17 remains incomplete even though create, list, and update are connected.
 - Prioritize frontend first inside each phase.
 - Tenant isolation is the highest priority.
 - Every tenant-owned backend query must include `creatorId`.

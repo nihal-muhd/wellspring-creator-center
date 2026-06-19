@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { ProgramFormModal } from "@/components/programs/ProgramFormModal";
+import { SessionFormModal } from "@/components/sessions/SessionFormModal";
 import { SessionList } from "@/components/sessions/SessionList";
 import {
   getProgram,
@@ -19,11 +20,18 @@ import {
   updateProgram,
 } from "@/lib/programs/programs";
 import {
+  createSession,
   getProgramSessions,
+  getSessionMutationErrorMessage,
   getSessionsErrorMessage,
+  updateSession,
 } from "@/lib/sessions/sessions";
 import type { ProgramFormValues, ProgramSummary } from "@/types/program";
-import type { SessionMediaType, SessionSummary } from "@/types/session";
+import type {
+  SessionFormValues,
+  SessionMediaType,
+  SessionSummary,
+} from "@/types/session";
 
 type ProgramDetailPageContentProps = {
   programId: string;
@@ -55,9 +63,16 @@ export function ProgramDetailPageContent({
   const [mediaFilter, setMediaFilter] = useState<MediaFilter>("ALL");
   const [isLoading, setIsLoading] = useState(true);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [sessionModalMode, setSessionModalMode] = useState<
+    "add" | "edit" | null
+  >(null);
+  const [selectedSession, setSelectedSession] =
+    useState<SessionSummary | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSessionSubmitting, setIsSessionSubmitting] = useState(false);
   const [loadError, setLoadError] = useState("");
   const [mutationError, setMutationError] = useState("");
+  const [sessionMutationError, setSessionMutationError] = useState("");
 
   const handleUnauthorized = useCallback(
     (error: unknown): boolean => {
@@ -166,6 +181,78 @@ export function ProgramDetailPageContent({
     }
   }
 
+  function openSessionModal(
+    mode: "add" | "edit",
+    session?: SessionSummary,
+  ): void {
+    setSessionMutationError("");
+    setSelectedSession(session ?? null);
+    setSessionModalMode(mode);
+  }
+
+  function closeSessionModal(): void {
+    if (isSessionSubmitting) {
+      return;
+    }
+
+    setSessionModalMode(null);
+    setSelectedSession(null);
+    setSessionMutationError("");
+  }
+
+  async function saveSession(values: SessionFormValues): Promise<void> {
+    setIsSessionSubmitting(true);
+    setSessionMutationError("");
+
+    const input = {
+      title: values.title,
+      duration: values.duration,
+      instructorName: values.instructorName || null,
+      tags: values.tags,
+      mediaType: values.mediaType ?? null,
+      ...(values.removePersistedMedia
+        ? {
+            mediaUrl: null,
+            mediaKey: null,
+          }
+        : {}),
+    };
+
+    try {
+      if (sessionModalMode === "edit" && selectedSession) {
+        const updatedSession = await updateSession(selectedSession.id, input);
+        setSessions((currentSessions) =>
+          currentSessions.map((session) =>
+            session.id === updatedSession.id ? updatedSession : session,
+          ),
+        );
+      } else {
+        const createdSession = await createSession(programId, input);
+        setSessions((currentSessions) => [
+          ...currentSessions,
+          createdSession,
+        ]);
+        setProgram((currentProgram) =>
+          currentProgram
+            ? {
+                ...currentProgram,
+                sessionCount: currentProgram.sessionCount + 1,
+              }
+            : currentProgram,
+        );
+      }
+
+      setSessionModalMode(null);
+      setSelectedSession(null);
+    } catch (error) {
+      if (!handleUnauthorized(error)) {
+        setSessionMutationError(getSessionMutationErrorMessage(error));
+      }
+    } finally {
+      setIsSessionSubmitting(false);
+    }
+  }
+
   if (isLoading) {
     return (
       <main
@@ -255,9 +342,8 @@ export function ProgramDetailPageContent({
               Bulk Import
             </button>
             <button
-              className="inline-flex cursor-not-allowed items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-label-md font-semibold text-on-primary opacity-60"
-              disabled
-              title="Session creation will be added in the next step."
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-label-md font-semibold text-on-primary hover:bg-primary-container focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+              onClick={() => openSessionModal("add")}
               type="button"
             >
               <Plus aria-hidden="true" size={18} strokeWidth={1.75} />
@@ -295,7 +381,10 @@ export function ProgramDetailPageContent({
           </label>
         </section>
 
-        <SessionList sessions={filteredSessions} />
+        <SessionList
+          onEdit={(session) => openSessionModal("edit", session)}
+          sessions={filteredSessions}
+        />
       </div>
 
       {isEditOpen ? (
@@ -312,6 +401,18 @@ export function ProgramDetailPageContent({
           }}
           onSave={saveProgram}
           program={program}
+        />
+      ) : null}
+
+      {sessionModalMode ? (
+        <SessionFormModal
+          error={sessionMutationError}
+          isSubmitting={isSessionSubmitting}
+          key={`${sessionModalMode}-${selectedSession?.id ?? "new"}`}
+          mode={sessionModalMode}
+          onClose={closeSessionModal}
+          onSave={saveSession}
+          session={selectedSession ?? undefined}
         />
       ) : null}
     </main>

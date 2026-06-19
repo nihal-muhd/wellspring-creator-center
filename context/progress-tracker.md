@@ -6,9 +6,9 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ## Current Status
 
-**Current Phase:** Phase 4 — Session Reorder
-**Last completed:** Drag-and-drop session reorder with transactional persistence and audit logging
-**Next:** Phase 5 — CSV Import
+**Current Phase:** Phase 5 — CSV Import
+**Last completed:** CSV Import modal UI and local file validation
+**Next:** CSV import API
 
 ---
 
@@ -51,7 +51,7 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ### Phase 5 — CSV Import
 
-- [ ] 24 CSV Import modal
+- [x] 24 CSV Import modal
 - [ ] 25 CSV import API
 - [ ] 26 Row-level validation feedback
 - [ ] 27 Idempotent import handling
@@ -119,6 +119,11 @@ Update this file after every completed feature. Any AI agent reading this should
 - `POST /programs/:programId/sessions/reorder` accepts the complete ordered session ID list and rejects duplicate, missing, foreign-program, or cross-tenant IDs.
 - Backend reorder verifies program ownership, updates every position, and writes one `SESSION_REORDERED` audit record in the same Prisma transaction.
 - Phase 4 verification passed backend TypeScript build, frontend ESLint, frontend standalone TypeScript checking, and `git diff --check`. The full Next.js build remains blocked locally by an external Windows file lock on `frontend/.next/trace`.
+- The Program Detail Bulk Import action now opens an accessible CSV import modal matching the supplied reference and existing workspace modal patterns.
+- The CSV modal documents required and optional columns, shows sample data, accepts click-selected `.csv` files up to 10 MB, and provides selected-file Change/Remove controls.
+- CSV modal proportions were refined to a compact `max-w-2xl` shell with tighter section spacing and a shorter file-picker area for comfortable laptop viewport fit.
+- Import submission is intentionally UI-only for now: a valid file enables the action and shows a clear message that backend processing will be connected next.
+- CSV modal verification passed frontend ESLint, standalone TypeScript checking, and `git diff --check`.
 - Prioritize frontend first inside each phase.
 - Tenant isolation is the highest priority.
 - Every tenant-owned backend query must include `creatorId`.

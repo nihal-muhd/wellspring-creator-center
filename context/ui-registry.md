@@ -340,6 +340,34 @@ Last updated: 2026-06-19
 **Pattern notes:**
 Session create and edit share one accessible modal shell matching Program Form Modal behavior: body scroll lock, focus containment, Escape/backdrop close, disabled controls while saving, inline validation, and request-level error alerts. Duration is entered as decimal hours and converted to whole minutes before submission. Tags use removable secondary-container chips. Media selection is a local preview only until the S3 phase.
 
+### Session CSV Import Modal
+
+File: `frontend/components/sessions/SessionImportModal.tsx`
+
+Last updated: 2026-06-19
+
+| Property | Class |
+| --- | --- |
+| Backdrop | `bg-inverse-surface/35 backdrop-blur-sm` |
+| Background | `bg-card` |
+| Border | `border border-border` |
+| Border radius | `rounded-xl` |
+| Shadow | `shadow-card` |
+| Heading | `text-headline-md text-primary` |
+| Modal width | `max-w-2xl` |
+| Header spacing | `px-5 py-4 sm:px-6` |
+| Body spacing | `space-y-5 px-5 py-5 sm:px-6` |
+| Format panel | `rounded-xl bg-muted p-4 sm:p-5` |
+| Sample data | `rounded-md bg-inverse-surface text-inverse-on-surface` |
+| File picker | `min-h-40 rounded-xl border border-dashed border-outline-variant bg-card sm:min-h-44` |
+| File picker hover | `hover:border-primary hover:bg-muted hover:text-primary` |
+| Selected file icon | `rounded-md bg-secondary-container text-primary` |
+| Footer | `border-t border-border bg-muted px-5 py-3.5 sm:px-6` |
+| Primary action | `rounded-md bg-primary text-on-primary hover:bg-primary-container` |
+
+**Pattern notes:**
+The CSV import modal uses the shared accessible workspace modal shell with body scroll lock, focus containment, Escape/backdrop close, a scrollable body, and a tonal footer. Keep this information-heavy modal at `max-w-2xl` with compact 20px body rhythm so it fits comfortably on laptop screens. The format panel separates required and optional columns, while sample CSV content uses the inverse surface for readable code. File selection is click-only rather than drag-and-drop. Empty and selected states occupy the same section; selected files show filename, formatted size, Change, and Remove controls. Accept only CSV files up to 10 MB and keep the import action disabled until a valid file is selected.
+
 ## Component Workflow
 
 Before building any component:

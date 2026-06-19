@@ -7,6 +7,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { ProgramFormModal } from "@/components/programs/ProgramFormModal";
 import { SessionFormModal } from "@/components/sessions/SessionFormModal";
+import { SessionImportModal } from "@/components/sessions/SessionImportModal";
 import { SessionList } from "@/components/sessions/SessionList";
 import {
   getProgram,
@@ -55,6 +56,7 @@ export function ProgramDetailPageContent({
   const [sessions, setSessions] = useState<SessionSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isImportOpen, setIsImportOpen] = useState(false);
   const [sessionModalMode, setSessionModalMode] = useState<
     "add" | "edit" | null
   >(null);
@@ -395,9 +397,9 @@ export function ProgramDetailPageContent({
               Edit Program
             </button>
             <button
-              className="inline-flex min-h-12 cursor-not-allowed items-center justify-center gap-2 rounded-md border border-border bg-card px-5 py-3 text-label-md font-semibold text-muted-foreground opacity-60"
-              disabled
-              title="Bulk import will be added in the CSV import phase."
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-border bg-card px-5 py-3 text-label-md font-semibold text-foreground hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-60"
+              disabled={isReordering || Boolean(deletingSessionId)}
+              onClick={() => setIsImportOpen(true)}
               type="button"
             >
               <Upload aria-hidden="true" size={18} strokeWidth={1.75} />
@@ -493,6 +495,10 @@ export function ProgramDetailPageContent({
           onSave={saveSession}
           session={selectedSession ?? undefined}
         />
+      ) : null}
+
+      {isImportOpen ? (
+        <SessionImportModal onClose={() => setIsImportOpen(false)} />
       ) : null}
     </main>
   );

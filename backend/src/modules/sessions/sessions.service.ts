@@ -1,9 +1,14 @@
 import { AppError } from "../../lib/app-error";
+import {
+  assertManagedS3File,
+  deleteS3ObjectsBestEffort,
+} from "../../lib/s3";
 import { findProgramByIdForCreator } from "../programs/programs.repository";
 import {
   createSessionForCreator,
   deleteSessionForCreator,
   findProgramSessionsForCreator,
+  findSessionByIdForCreator,
   reorderSessionsForCreator,
   updateSessionForCreator,
 } from "./sessions.repository";
@@ -31,6 +36,14 @@ export async function createSession(
   actorId: string,
   input: CreateSessionInput,
 ) {
+  assertManagedS3File(
+    creatorId,
+    programId,
+    "sessions",
+    input.mediaUrl,
+    input.mediaKey,
+  );
+
   const session = await createSessionForCreator(
     programId,
     creatorId,
@@ -78,6 +91,25 @@ export async function updateSession(
   actorId: string,
   input: UpdateSessionInput,
 ) {
+  const existingSession = await findSessionByIdForCreator(
+    sessionId,
+    creatorId,
+  );
+
+  if (!existingSession) {
+    throw new AppError("Session not found.", 404);
+  }
+
+  if ("mediaUrl" in input || "mediaKey" in input) {
+    assertManagedS3File(
+      creatorId,
+      existingSession.programId,
+      "sessions",
+      input.mediaUrl,
+      input.mediaKey,
+    );
+  }
+
   const session = await updateSessionForCreator(
     sessionId,
     creatorId,
@@ -87,6 +119,13 @@ export async function updateSession(
 
   if (!session) {
     throw new AppError("Session not found.", 404);
+  }
+
+  if (
+    existingSession.mediaKey &&
+    existingSession.mediaKey !== session.mediaKey
+  ) {
+    await deleteS3ObjectsBestEffort([existingSession.mediaKey]);
   }
 
   return session;
@@ -107,5 +146,9 @@ export async function deleteSession(
     throw new AppError("Session not found.", 404);
   }
 
-  return result;
+  await deleteS3ObjectsBestEffort([result.mediaKey]);
+
+  return {
+    id: result.id,
+  };
 }

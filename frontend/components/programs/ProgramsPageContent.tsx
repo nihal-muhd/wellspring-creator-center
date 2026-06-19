@@ -16,6 +16,10 @@ import {
   isUnauthorizedProgramError,
   updateProgram,
 } from "@/lib/programs/programs";
+import {
+  getUploadErrorMessage,
+  uploadFile,
+} from "@/lib/uploads/uploads";
 import type { ProgramFormValues, ProgramSummary } from "@/types/program";
 
 export function ProgramsPageContent() {
@@ -125,20 +129,29 @@ export function ProgramsPageContent() {
     setIsSubmitting(true);
     setMutationError("");
 
-    const selectedLocalImage = values.coverImageUrl?.startsWith("data:");
-    const persistedCoverImageUrl = selectedLocalImage
-      ? selectedProgram?.coverImageUrl
-      : values.coverImageUrl;
-
     try {
       if (modalMode === "edit" && selectedProgram) {
+        const uploadedCover = values.coverImageFile
+          ? await uploadFile(
+              selectedProgram.id,
+              "PROGRAM_IMAGE",
+              values.coverImageFile,
+            )
+          : null;
         const updatedProgram = await updateProgram(selectedProgram.id, {
           title: values.title,
           description: values.description,
-          coverImageUrl: persistedCoverImageUrl ?? null,
-          coverImageKey: persistedCoverImageUrl
-            ? (selectedProgram.coverImageKey ?? null)
-            : null,
+          ...(uploadedCover
+            ? {
+                coverImageUrl: uploadedCover.fileUrl,
+                coverImageKey: uploadedCover.fileKey,
+              }
+            : values.removePersistedCoverImage
+              ? {
+                  coverImageUrl: null,
+                  coverImageKey: null,
+                }
+              : {}),
         });
 
         setPrograms((currentPrograms) =>
@@ -151,9 +164,41 @@ export function ProgramsPageContent() {
           title: values.title,
           description: values.description,
         });
+        let savedProgram = createdProgram;
+
+        if (values.coverImageFile) {
+          try {
+            const uploadedCover = await uploadFile(
+              createdProgram.id,
+              "PROGRAM_IMAGE",
+              values.coverImageFile,
+            );
+            savedProgram = await updateProgram(createdProgram.id, {
+              title: values.title,
+              description: values.description,
+              coverImageUrl: uploadedCover.fileUrl,
+              coverImageKey: uploadedCover.fileKey,
+            });
+          } catch (error) {
+            if (handleUnauthorized(error)) {
+              return;
+            }
+
+            setPrograms((currentPrograms) => [
+              createdProgram,
+              ...currentPrograms,
+            ]);
+            setSelectedProgram(createdProgram);
+            setModalMode("edit");
+            setMutationError(
+              `Program created, but ${getUploadErrorMessage(error).toLowerCase()}`,
+            );
+            return;
+          }
+        }
 
         setPrograms((currentPrograms) => [
-          createdProgram,
+          savedProgram,
           ...currentPrograms,
         ]);
       }
@@ -162,7 +207,11 @@ export function ProgramsPageContent() {
       setSelectedProgram(null);
     } catch (error) {
       if (!handleUnauthorized(error)) {
-        setMutationError(getProgramMutationErrorMessage(error));
+        setMutationError(
+          values.coverImageFile
+            ? getUploadErrorMessage(error)
+            : getProgramMutationErrorMessage(error),
+        );
       }
     } finally {
       setIsSubmitting(false);

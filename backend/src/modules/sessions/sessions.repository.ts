@@ -39,6 +39,19 @@ export async function findProgramSessionsForCreator(
   });
 }
 
+export async function findSessionByIdForCreator(
+  sessionId: string,
+  creatorId: string,
+) {
+  return prisma.session.findFirst({
+    where: {
+      id: sessionId,
+      creatorId,
+    },
+    select: sessionSelect,
+  });
+}
+
 export async function createSessionForCreator(
   programId: string,
   creatorId: string,
@@ -83,6 +96,8 @@ export async function createSessionForCreator(
         instructorName: input.instructorName,
         tags: input.tags,
         mediaType: input.mediaType,
+        mediaUrl: input.mediaUrl,
+        mediaKey: input.mediaKey,
       },
       select: sessionSelect,
     });
@@ -319,6 +334,7 @@ export async function deleteSessionForCreator(
 
     return {
       id: session.id,
+      mediaKey: session.mediaKey,
     };
   });
 }

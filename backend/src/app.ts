@@ -6,6 +6,7 @@ import { errorMiddleware } from "./middleware/error.middleware";
 import { authRouter } from "./modules/auth/auth.routes";
 import { programsRouter } from "./modules/programs/programs.routes";
 import { sessionResourceRouter } from "./modules/sessions/sessions.routes";
+import { uploadsRouter } from "./modules/uploads/uploads.routes";
 import { authMiddleware } from "./middleware/auth.middleware";
 
 export const app = express();
@@ -32,4 +33,5 @@ app.get("/health", (_req, res) => {
 app.use("/auth", authRouter);
 app.use("/programs", programsRouter);
 app.use("/sessions", authMiddleware, sessionResourceRouter);
+app.use("/uploads", uploadsRouter);
 app.use(errorMiddleware);

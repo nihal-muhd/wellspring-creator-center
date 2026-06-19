@@ -1,5 +1,9 @@
 import { AppError } from "../../lib/app-error";
 import {
+  assertManagedS3File,
+  deleteS3ObjectsBestEffort,
+} from "../../lib/s3";
+import {
   createProgramForCreator,
   deleteProgramForCreator,
   findProgramByIdForCreator,
@@ -30,6 +34,13 @@ export async function createProgram(
   actorId: string,
   input: CreateProgramInput,
 ) {
+  if (input.coverImageUrl || input.coverImageKey) {
+    throw new AppError(
+      "Create the program before uploading its cover image.",
+      400,
+    );
+  }
+
   return createProgramForCreator(creatorId, actorId, input);
 }
 
@@ -39,6 +50,25 @@ export async function updateProgram(
   actorId: string,
   input: UpdateProgramInput,
 ) {
+  const existingProgram = await findProgramByIdForCreator(
+    programId,
+    creatorId,
+  );
+
+  if (!existingProgram) {
+    throw new AppError("Program not found.", 404);
+  }
+
+  if ("coverImageUrl" in input || "coverImageKey" in input) {
+    assertManagedS3File(
+      creatorId,
+      programId,
+      "images",
+      input.coverImageUrl,
+      input.coverImageKey,
+    );
+  }
+
   const program = await updateProgramForCreator(
     programId,
     creatorId,
@@ -48,6 +78,13 @@ export async function updateProgram(
 
   if (!program) {
     throw new AppError("Program not found.", 404);
+  }
+
+  if (
+    existingProgram.coverImageKey &&
+    existingProgram.coverImageKey !== program.coverImageKey
+  ) {
+    await deleteS3ObjectsBestEffort([existingProgram.coverImageKey]);
   }
 
   return program;
@@ -68,5 +105,9 @@ export async function deleteProgram(
     throw new AppError("Program not found.", 404);
   }
 
-  return result;
+  await deleteS3ObjectsBestEffort(result.deletedFileKeys);
+
+  return {
+    id: result.id,
+  };
 }

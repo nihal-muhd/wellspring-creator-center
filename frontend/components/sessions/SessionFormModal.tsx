@@ -76,6 +76,7 @@ export function SessionFormModal({
     session?.mediaUrl ?? "",
   );
   const [selectedFileName, setSelectedFileName] = useState("");
+  const [mediaFile, setMediaFile] = useState<File>();
   const [removePersistedMedia, setRemovePersistedMedia] = useState(false);
   const [titleError, setTitleError] = useState("");
   const [durationError, setDurationError] = useState("");
@@ -192,6 +193,7 @@ export function SessionFormModal({
 
     setMediaPreviewUrl(URL.createObjectURL(file));
     setSelectedFileName(file.name);
+    setMediaFile(file);
     setMediaType(nextMediaType);
     setRemovePersistedMedia(false);
     setMediaError("");
@@ -204,6 +206,7 @@ export function SessionFormModal({
 
     setMediaPreviewUrl("");
     setSelectedFileName("");
+    setMediaFile(undefined);
     setMediaType(undefined);
     setRemovePersistedMedia(Boolean(session?.mediaUrl || session?.mediaKey));
     setMediaError("");
@@ -242,6 +245,7 @@ export function SessionFormModal({
       instructorName: instructorName.trim(),
       tags,
       mediaType,
+      mediaFile,
       removePersistedMedia,
     });
   }
@@ -494,7 +498,7 @@ export function SessionFormModal({
                     Choose audio or video
                   </span>
                   <span className="mt-1 text-label-sm">
-                    Local preview only until S3 uploads are connected.
+                    Audio or video, up to 100 MB.
                   </span>
                   <input
                     accept="audio/*,video/*"

@@ -1,6 +1,7 @@
 import { AxiosError } from "axios";
 
 import { api } from "@/lib/api";
+import { getReadUrl } from "@/lib/uploads/uploads";
 import type {
   ProgramApiErrorResponse,
   ProgramApiSuccessResponse,
@@ -11,7 +12,9 @@ import type {
   SessionSummary,
 } from "@/types/session";
 
-function mapSession(record: SessionApiRecord): SessionSummary {
+async function mapSession(
+  record: SessionApiRecord,
+): Promise<SessionSummary> {
   return {
     id: record.id,
     programId: record.programId,
@@ -21,7 +24,9 @@ function mapSession(record: SessionApiRecord): SessionSummary {
     instructorName: record.instructorName ?? undefined,
     tags: record.tags,
     mediaType: record.mediaType ?? undefined,
-    mediaUrl: record.mediaUrl ?? undefined,
+    mediaUrl: record.mediaKey
+      ? await getReadUrl(record.mediaKey)
+      : undefined,
     mediaKey: record.mediaKey ?? undefined,
     thumbnailUrl: record.thumbnailUrl ?? undefined,
   };
@@ -34,7 +39,7 @@ export async function getProgramSessions(
     ProgramApiSuccessResponse<SessionApiRecord[]>
   >(`/programs/${programId}/sessions`);
 
-  return response.data.data.map(mapSession);
+  return Promise.all(response.data.data.map(mapSession));
 }
 
 export async function createSession(
@@ -73,7 +78,7 @@ export async function reorderSessions(
     sessionIds,
   });
 
-  return response.data.data.map(mapSession);
+  return Promise.all(response.data.data.map(mapSession));
 }
 
 export function getSessionsErrorMessage(error: unknown): string {

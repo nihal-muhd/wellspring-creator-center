@@ -45,6 +45,9 @@ export function ProgramFormModal({
   const [coverImageUrl, setCoverImageUrl] = useState(
     program?.coverImageUrl ?? "",
   );
+  const [coverImageFile, setCoverImageFile] = useState<File>();
+  const [removePersistedCoverImage, setRemovePersistedCoverImage] =
+    useState(false);
   const [titleError, setTitleError] = useState("");
   const [imageError, setImageError] = useState("");
 
@@ -118,6 +121,8 @@ export function ProgramFormModal({
     reader.addEventListener("load", () => {
       if (typeof reader.result === "string") {
         setCoverImageUrl(reader.result);
+        setCoverImageFile(file);
+        setRemovePersistedCoverImage(false);
         setImageError("");
       }
     });
@@ -129,6 +134,10 @@ export function ProgramFormModal({
 
   function removeImage(): void {
     setCoverImageUrl("");
+    setCoverImageFile(undefined);
+    setRemovePersistedCoverImage(
+      Boolean(program?.coverImageUrl || program?.coverImageKey),
+    );
     setImageError("");
   }
 
@@ -145,7 +154,8 @@ export function ProgramFormModal({
     await onSave({
       title: normalizedTitle,
       description: description.trim(),
-      coverImageUrl: coverImageUrl || undefined,
+      coverImageFile,
+      removePersistedCoverImage,
     });
   }
 

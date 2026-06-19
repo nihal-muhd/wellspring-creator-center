@@ -11,7 +11,8 @@ export type ProgramSummary = {
 export type ProgramFormValues = {
   title: string;
   description: string;
-  coverImageUrl?: string;
+  coverImageFile?: File;
+  removePersistedCoverImage: boolean;
 };
 
 export type ProgramApiRecord = {

@@ -168,6 +168,11 @@ export async function deleteProgramForCreator(
         description: true,
         coverImageUrl: true,
         coverImageKey: true,
+        sessions: {
+          select: {
+            mediaKey: true,
+          },
+        },
         _count: {
           select: {
             sessions: true,
@@ -208,6 +213,10 @@ export async function deleteProgramForCreator(
 
     return {
       id: program.id,
+      deletedFileKeys: [
+        program.coverImageKey,
+        ...program.sessions.map((session) => session.mediaKey),
+      ],
     };
   });
 }

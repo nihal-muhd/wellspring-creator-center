@@ -36,6 +36,7 @@ export type SessionFormValues = {
   instructorName: string;
   tags: string[];
   mediaType?: SessionMediaType;
+  mediaFile?: File;
   removePersistedMedia: boolean;
 };
 

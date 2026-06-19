@@ -6,9 +6,9 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ## Current Status
 
-**Current Phase:** Phase 5 — CSV Import
-**Last completed:** CSV import API, row-level feedback, idempotency, and audit logging
-**Next:** Phase 6 — S3 Uploads
+**Current Phase:** Phase 6 — S3 Uploads
+**Last completed:** Secure S3 pre-signed uploads, media persistence, and old-object cleanup
+**Next:** Phase 7 — Audit Logs
 
 ---
 
@@ -29,7 +29,7 @@ Update this file after every completed feature. Any AI agent reading this should
 - [x] 08 Add Program modal
 - [x] 09 Edit Program modal
 - [x] 10 Program CRUD APIs
-- [ ] 11 Program image upload connection - Skip for now
+- [x] 11 Program image upload connection
 - [x] 12 Program audit logs
 
 ### Phase 3 — Program Detail + Sessions
@@ -39,7 +39,7 @@ Update this file after every completed feature. Any AI agent reading this should
 - [x] 15 Add Session modal
 - [x] 16 Edit Session modal
 - [x] 17 Session CRUD APIs
-- [ ] 18 Session media upload connection - Skip for now
+- [x] 18 Session media upload connection
 - [x] 19 Session audit logs
 
 ### Phase 4 — Session Reorder
@@ -59,11 +59,11 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ### Phase 6 — S3 Uploads
 
-- [ ] 29 S3 presigned upload API
-- [ ] 30 Program image upload flow
-- [ ] 31 Session media upload flow
-- [ ] 32 Save file URL and S3 key
-- [ ] 33 Delete old S3 files on replace/remove
+- [x] 29 S3 presigned upload API
+- [x] 30 Program image upload flow
+- [x] 31 Session media upload flow
+- [x] 32 Save file URL and S3 key
+- [x] 33 Delete old S3 files on replace/remove
 
 ### Phase 7 — Audit Logs
 
@@ -131,6 +131,20 @@ Update this file after every completed feature. Any AI agent reading this should
 - The import modal now shows request errors, imported/failed row counts, idempotent replay status, and a scrollable row-error list, then refreshes the Program Detail session list and totals.
 - After a successful import response, the modal hides the Import Sessions action and leaves only Close, preventing accidental duplicate API calls from the completed state.
 - CSV import verification passed backend TypeScript build, frontend ESLint, frontend standalone TypeScript checking, parser line-number inspection, and `git diff --check`.
+- `POST /uploads/presign` validates authenticated program ownership, upload type, MIME type, matching extension, and the 10 MB image / 100 MB media limits before returning a five-minute S3 PUT URL.
+- S3 keys use UUID filenames under `creators/{creatorId}/programs/{programId}/images` or `/sessions`; the frontend never controls `creatorId`.
+- Every pre-signed URL request writes an `UPLOAD_URL_REQUESTED` audit record without storing or logging the signed URL.
+- Program create persists the program first, uploads an optional cover directly from the browser to S3, then patches the returned URL/key pair; edit supports replace and remove.
+- Session create/edit uploads selected audio or video directly to S3 during Save and persists both `mediaUrl` and `mediaKey`; remove submits null values.
+- Program and session services reject arbitrary file references unless URL/key pairs match the authenticated creator and current program prefix.
+- Replaced and removed objects are deleted only after successful database updates. Session deletion removes its media, while program deletion cleans its cover and all child session media.
+- S3 cleanup failures are logged without rolling back an already-successful database mutation.
+- AWS configuration is documented in `backend/.env.example`; browser PUT uploads use the same `Content-Type` used to generate the signature.
+- Private media reads use authenticated `POST /uploads/read-url` with `GetObjectCommand`; read URLs expire after 600 seconds.
+- Read signing rejects keys outside `creators/{creatorId}/` and keys not referenced by the authenticated creator's program or session.
+- Frontend program/session adapters ignore stored object URLs and resolve temporary read URLs from `coverImageKey` and `mediaKey` before rendering cards or media previews.
+- Existing private program cover verification returned `200 OK` through the signed read URL while the direct stored object URL remained inaccessible.
+- Phase 6 verification passed backend TypeScript build, frontend ESLint, frontend standalone TypeScript checking, and `git diff --check`.
 - Prioritize frontend first inside each phase.
 - Tenant isolation is the highest priority.
 - Every tenant-owned backend query must include `creatorId`.

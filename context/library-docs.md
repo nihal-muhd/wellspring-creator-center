@@ -140,7 +140,7 @@ photo.png
 
 ### Database Storage Rules
 
-Store both the public/object URL and the S3 object key.
+Store both the object URL and the S3 object key.
 
 For programs:
 
@@ -156,9 +156,9 @@ mediaUrl
 mediaKey
 ```
 
-The URL is useful for displaying the file.
+The stored URL is metadata only and must not be rendered directly.
 
-The key is required for deleting the file from S3.
+The key is required for authenticated read URLs and deleting the file from S3.
 
 Do not try to delete S3 objects by parsing the URL if the key is already available.
 
@@ -343,6 +343,43 @@ await api.patch(`/programs/${programId}`, {
 });
 ```
 
+### Private Read URL Flow
+
+The S3 bucket remains private. The frontend must not render stored
+`coverImageUrl` or `mediaUrl` values directly.
+
+```txt
+1. Frontend receives a stored S3 key with program/session data.
+2. Frontend sends the key to POST /uploads/read-url.
+3. Backend gets creatorId from the verified auth cookie.
+4. Backend verifies the key starts with creators/{creatorId}/.
+5. Backend verifies the key is referenced by that creator's program or session.
+6. Backend signs GetObjectCommand for 600 seconds.
+7. Frontend uses the temporary URL for image/audio/video rendering.
+```
+
+Request:
+
+```ts
+{
+  fileKey: string;
+}
+```
+
+Response:
+
+```ts
+{
+  success: true;
+  data: {
+    readUrl: string;
+    expiresIn: 600;
+  };
+}
+```
+
+Do not make the bucket public to display uploaded media.
+
 ---
 
 ### Deleting Files from S3
@@ -418,6 +455,9 @@ If S3 deletion fails after DB update, log the failure. Do not expose raw AWS err
 - S3 keys must include `creatorId`.
 - Do not generate upload URLs for another creator’s program.
 - Do not log pre-signed URLs.
+- Do not render stored S3 object URLs directly.
+- Read URLs must use `GetObjectCommand` and expire after 600 seconds.
+- Read keys must start with `creators/{creatorId}/` and be owned by the creator.
 - Do not log AWS secrets.
 - Keep pre-signed URLs short-lived.
 - Use `300` seconds expiry unless changed later.

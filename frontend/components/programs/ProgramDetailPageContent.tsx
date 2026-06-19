@@ -26,6 +26,10 @@ import {
   reorderSessions,
   updateSession,
 } from "@/lib/sessions/sessions";
+import {
+  getUploadErrorMessage,
+  uploadFile,
+} from "@/lib/uploads/uploads";
 import type { ProgramFormValues, ProgramSummary } from "@/types/program";
 import type { SessionFormValues, SessionSummary } from "@/types/session";
 
@@ -146,26 +150,35 @@ export function ProgramDetailPageContent({
     setIsSubmitting(true);
     setMutationError("");
 
-    const selectedLocalImage = values.coverImageUrl?.startsWith("data:");
-    const persistedCoverImageUrl = selectedLocalImage
-      ? program.coverImageUrl
-      : values.coverImageUrl;
-
     try {
+      const uploadedCover = values.coverImageFile
+        ? await uploadFile(program.id, "PROGRAM_IMAGE", values.coverImageFile)
+        : null;
       const updatedProgram = await updateProgram(program.id, {
         title: values.title,
         description: values.description,
-        coverImageUrl: persistedCoverImageUrl ?? null,
-        coverImageKey: persistedCoverImageUrl
-          ? (program.coverImageKey ?? null)
-          : null,
+        ...(uploadedCover
+          ? {
+              coverImageUrl: uploadedCover.fileUrl,
+              coverImageKey: uploadedCover.fileKey,
+            }
+          : values.removePersistedCoverImage
+            ? {
+                coverImageUrl: null,
+                coverImageKey: null,
+              }
+            : {}),
       });
 
       setProgram(updatedProgram);
       setIsEditOpen(false);
     } catch (error) {
       if (!handleUnauthorized(error)) {
-        setMutationError(getProgramMutationErrorMessage(error));
+        setMutationError(
+          values.coverImageFile
+            ? getUploadErrorMessage(error)
+            : getProgramMutationErrorMessage(error),
+        );
       }
     } finally {
       setIsSubmitting(false);
@@ -195,21 +208,29 @@ export function ProgramDetailPageContent({
     setIsSessionSubmitting(true);
     setSessionMutationError("");
 
-    const input = {
-      title: values.title,
-      duration: values.duration,
-      instructorName: values.instructorName || null,
-      tags: values.tags,
-      mediaType: values.mediaType ?? null,
-      ...(values.removePersistedMedia
-        ? {
-            mediaUrl: null,
-            mediaKey: null,
-          }
-        : {}),
-    };
-
     try {
+      const uploadedMedia = values.mediaFile
+        ? await uploadFile(programId, "SESSION_MEDIA", values.mediaFile)
+        : null;
+      const input = {
+        title: values.title,
+        duration: values.duration,
+        instructorName: values.instructorName || null,
+        tags: values.tags,
+        mediaType: values.mediaType ?? null,
+        ...(uploadedMedia
+          ? {
+              mediaUrl: uploadedMedia.fileUrl,
+              mediaKey: uploadedMedia.fileKey,
+            }
+          : values.removePersistedMedia
+            ? {
+                mediaUrl: null,
+                mediaKey: null,
+              }
+            : {}),
+      };
+
       if (sessionModalMode === "edit" && selectedSession) {
         const updatedSession = await updateSession(selectedSession.id, input);
         setSessions((currentSessions) =>
@@ -234,7 +255,11 @@ export function ProgramDetailPageContent({
       setSelectedSession(null);
     } catch (error) {
       if (!handleUnauthorized(error)) {
-        setSessionMutationError(getSessionMutationErrorMessage(error));
+        setSessionMutationError(
+          values.mediaFile
+            ? getUploadErrorMessage(error)
+            : getSessionMutationErrorMessage(error),
+        );
       }
     } finally {
       setIsSessionSubmitting(false);

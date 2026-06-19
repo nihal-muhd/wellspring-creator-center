@@ -38,26 +38,26 @@ const sessionFields = {
     .max(10, "Use 10 tags or fewer.")
     .default([]),
   mediaType: z.enum(["AUDIO", "VIDEO"]).nullable().optional(),
+  mediaUrl: z
+    .union([z.url("Media URL must be a valid URL."), z.literal(""), z.null()])
+    .optional()
+    .transform((value) => value || null),
+  mediaKey: z
+    .union([
+      z
+        .string()
+        .trim()
+        .max(1024, "Media key must be 1024 characters or fewer."),
+      z.null(),
+    ])
+    .optional()
+    .transform((value) => value || null),
 };
 
 export const createSessionSchema = z.object(sessionFields);
 
 export const updateSessionSchema = z
-  .object({
-    ...sessionFields,
-    mediaUrl: z
-      .union([z.url("Media URL must be a valid URL."), z.literal(""), z.null()])
-      .transform((value) => value || null),
-    mediaKey: z
-      .union([
-        z
-          .string()
-          .trim()
-          .max(1024, "Media key must be 1024 characters or fewer."),
-        z.null(),
-      ])
-      .transform((value) => value || null),
-  })
+  .object(sessionFields)
   .partial()
   .refine((input) => Object.keys(input).length > 0, {
     message: "Provide at least one field to update.",

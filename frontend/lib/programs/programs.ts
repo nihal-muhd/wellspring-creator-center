@@ -1,6 +1,7 @@
 import { AxiosError } from "axios";
 
 import { api } from "@/lib/api";
+import { getReadUrl } from "@/lib/uploads/uploads";
 import type {
   ProgramApiErrorResponse,
   ProgramApiRecord,
@@ -9,13 +10,17 @@ import type {
   ProgramSummary,
 } from "@/types/program";
 
-function mapProgram(record: ProgramApiRecord): ProgramSummary {
+async function mapProgram(
+  record: ProgramApiRecord,
+): Promise<ProgramSummary> {
   return {
     id: record.id,
     title: record.title,
     description: record.description ?? "",
     sessionCount: record._count.sessions,
-    coverImageUrl: record.coverImageUrl ?? undefined,
+    coverImageUrl: record.coverImageKey
+      ? await getReadUrl(record.coverImageKey)
+      : undefined,
     coverImageKey: record.coverImageKey ?? undefined,
   };
 }
@@ -24,7 +29,7 @@ export async function getPrograms(): Promise<ProgramSummary[]> {
   const response =
     await api.get<ProgramApiSuccessResponse<ProgramApiRecord[]>>("/programs");
 
-  return response.data.data.map(mapProgram);
+  return Promise.all(response.data.data.map(mapProgram));
 }
 
 export async function getProgram(

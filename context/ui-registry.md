@@ -269,7 +269,7 @@ Last updated: 2026-06-18
 | Remove action | `bg-inverse-surface/75 text-inverse-on-surface` |
 
 **Pattern notes:**
-Show a square local preview beside the upload control. Accept only JPEG, PNG, and WebP, show file guidance, and keep remove/change actions available before submission. This is a frontend preview pattern only; S3 persistence is connected in the upload phase.
+Show a square local preview beside the upload control. Accept only JPEG, PNG, and WebP, show file guidance, and keep remove/change actions available before submission. Selected files remain local previews until Save; the page flow then requests a tenant-scoped pre-signed URL, uploads directly to S3, and persists the returned URL/key pair. Persisted images are displayed only through a 600-second authenticated read URL generated from the stored key; never render the stored object URL directly. Removing a persisted image submits null URL/key values so backend cleanup runs after the database update.
 
 ### Program Detail Page
 
@@ -338,7 +338,7 @@ Last updated: 2026-06-19
 | Primary action | `rounded-md bg-primary text-on-primary hover:bg-primary-container` |
 
 **Pattern notes:**
-Session create and edit share one accessible modal shell matching Program Form Modal behavior: body scroll lock, focus containment, Escape/backdrop close, disabled controls while saving, inline validation, and request-level error alerts. Duration is entered as decimal hours and converted to whole minutes before submission. Tags use removable secondary-container chips. Media selection is a local preview only until the S3 phase.
+Session create and edit share one accessible modal shell matching Program Form Modal behavior: body scroll lock, focus containment, Escape/backdrop close, disabled controls while saving, inline validation, and request-level error alerts. Duration is entered as decimal hours and converted to whole minutes before submission. Tags use removable secondary-container chips. Selected audio/video files use a local blob preview, then upload directly to S3 during Save through a tenant-scoped pre-signed URL. Persisted media previews use a 600-second authenticated read URL generated from `mediaKey`, never the stored object URL. The modal accepts files up to 100 MB and submits returned URL/key values with the session mutation; persisted media removal submits null URL/key values.
 
 ### Session CSV Import Modal
 

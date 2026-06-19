@@ -27,6 +27,16 @@ export async function getPrograms(): Promise<ProgramSummary[]> {
   return response.data.data.map(mapProgram);
 }
 
+export async function getProgram(
+  programId: string,
+): Promise<ProgramSummary> {
+  const response = await api.get<
+    ProgramApiSuccessResponse<ProgramApiRecord>
+  >(`/programs/${programId}`);
+
+  return mapProgram(response.data.data);
+}
+
 export async function createProgram(
   input: ProgramMutationInput,
 ): Promise<ProgramSummary> {

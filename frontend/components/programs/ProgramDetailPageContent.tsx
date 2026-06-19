@@ -1,0 +1,319 @@
+"use client";
+
+import {
+  ArrowLeft,
+  Pen,
+  Plus,
+  Upload,
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
+
+import { ProgramFormModal } from "@/components/programs/ProgramFormModal";
+import { SessionList } from "@/components/sessions/SessionList";
+import {
+  getProgram,
+  getProgramMutationErrorMessage,
+  isUnauthorizedProgramError,
+  updateProgram,
+} from "@/lib/programs/programs";
+import {
+  getProgramSessions,
+  getSessionsErrorMessage,
+} from "@/lib/sessions/sessions";
+import type { ProgramFormValues, ProgramSummary } from "@/types/program";
+import type { SessionMediaType, SessionSummary } from "@/types/session";
+
+type ProgramDetailPageContentProps = {
+  programId: string;
+};
+
+type MediaFilter = "ALL" | SessionMediaType;
+
+function formatTotalDuration(totalMinutes: number): string {
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+
+  if (hours === 0) {
+    return `${minutes} min content`;
+  }
+
+  if (minutes === 0) {
+    return `${hours} ${hours === 1 ? "hour" : "hours"} content`;
+  }
+
+  return `${hours}h ${minutes}m content`;
+}
+
+export function ProgramDetailPageContent({
+  programId,
+}: ProgramDetailPageContentProps) {
+  const router = useRouter();
+  const [program, setProgram] = useState<ProgramSummary | null>(null);
+  const [sessions, setSessions] = useState<SessionSummary[]>([]);
+  const [mediaFilter, setMediaFilter] = useState<MediaFilter>("ALL");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loadError, setLoadError] = useState("");
+  const [mutationError, setMutationError] = useState("");
+
+  const handleUnauthorized = useCallback(
+    (error: unknown): boolean => {
+      if (!isUnauthorizedProgramError(error)) {
+        return false;
+      }
+
+      router.replace("/login");
+      router.refresh();
+      return true;
+    },
+    [router],
+  );
+
+  const loadProgramDetail = useCallback(async (): Promise<void> => {
+    setIsLoading(true);
+    setLoadError("");
+
+    try {
+      const [loadedProgram, loadedSessions] = await Promise.all([
+        getProgram(programId),
+        getProgramSessions(programId),
+      ]);
+
+      setProgram(loadedProgram);
+      setSessions(loadedSessions);
+    } catch (error) {
+      if (!handleUnauthorized(error)) {
+        setLoadError(getSessionsErrorMessage(error));
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }, [handleUnauthorized, programId]);
+
+  useEffect(() => {
+    let isActive = true;
+
+    Promise.all([getProgram(programId), getProgramSessions(programId)])
+      .then(([loadedProgram, loadedSessions]) => {
+        if (isActive) {
+          setProgram(loadedProgram);
+          setSessions(loadedSessions);
+        }
+      })
+      .catch((error: unknown) => {
+        if (isActive && !handleUnauthorized(error)) {
+          setLoadError(getSessionsErrorMessage(error));
+        }
+      })
+      .finally(() => {
+        if (isActive) {
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, [handleUnauthorized, programId]);
+
+  const filteredSessions = useMemo(
+    () =>
+      mediaFilter === "ALL"
+        ? sessions
+        : sessions.filter((session) => session.mediaType === mediaFilter),
+    [mediaFilter, sessions],
+  );
+
+  const totalDuration = useMemo(
+    () => sessions.reduce((total, session) => total + session.duration, 0),
+    [sessions],
+  );
+
+  async function saveProgram(values: ProgramFormValues): Promise<void> {
+    if (!program) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    setMutationError("");
+
+    const selectedLocalImage = values.coverImageUrl?.startsWith("data:");
+    const persistedCoverImageUrl = selectedLocalImage
+      ? program.coverImageUrl
+      : values.coverImageUrl;
+
+    try {
+      const updatedProgram = await updateProgram(program.id, {
+        title: values.title,
+        description: values.description,
+        coverImageUrl: persistedCoverImageUrl ?? null,
+        coverImageKey: persistedCoverImageUrl
+          ? (program.coverImageKey ?? null)
+          : null,
+      });
+
+      setProgram(updatedProgram);
+      setIsEditOpen(false);
+    } catch (error) {
+      if (!handleUnauthorized(error)) {
+        setMutationError(getProgramMutationErrorMessage(error));
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <main
+        aria-label="Loading program details"
+        className="min-h-dvh bg-background"
+      >
+        <div className="border-b border-border bg-card/80 px-4 py-5 sm:px-6 lg:px-8">
+          <div className="h-5 w-40 animate-pulse rounded-md bg-surface-container motion-reduce:animate-none" />
+        </div>
+        <div className="mx-auto max-w-app space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+          <div className="h-10 w-2/3 animate-pulse rounded-md bg-surface-container motion-reduce:animate-none" />
+          <div className="h-24 animate-pulse rounded-xl bg-surface-container motion-reduce:animate-none" />
+          <div className="h-32 animate-pulse rounded-xl bg-surface-container motion-reduce:animate-none" />
+        </div>
+      </main>
+    );
+  }
+
+  if (loadError || !program) {
+    return (
+      <main className="min-h-dvh bg-background">
+        <div className="border-b border-border bg-card/80 px-4 py-5 sm:px-6 lg:px-8">
+          <Link
+            className="inline-flex items-center gap-2 text-label-md text-primary hover:underline focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            href="/programs"
+          >
+            <ArrowLeft aria-hidden="true" size={18} />
+            Back to Programs
+          </Link>
+        </div>
+        <section className="mx-auto mt-8 max-w-xl rounded-xl border border-border bg-card p-6 text-center shadow-card">
+          <p className="text-label-md text-error" role="alert">
+            {loadError || "Program not found."}
+          </p>
+          <button
+            className="mt-4 rounded-md bg-primary px-4 py-2.5 text-label-md font-semibold text-on-primary hover:bg-primary-container focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+            onClick={() => void loadProgramDetail()}
+            type="button"
+          >
+            Try Again
+          </button>
+        </section>
+      </main>
+    );
+  }
+
+  return (
+    <main className="min-h-dvh bg-background">
+      <div className="border-b border-border bg-card/80 px-4 py-5 backdrop-blur-sm sm:px-6 lg:px-8">
+        <Link
+          className="inline-flex items-center gap-2 text-label-md text-primary hover:underline focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          href="/programs"
+        >
+          <ArrowLeft aria-hidden="true" size={18} strokeWidth={1.75} />
+          Back to Programs
+        </Link>
+      </div>
+
+      <div className="mx-auto w-full max-w-app px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
+        <header className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+          <div className="max-w-3xl">
+            <h1 className="text-headline-lg text-primary">{program.title}</h1>
+            <p className="mt-2 text-body-md text-muted-foreground">
+              {program.description || "No program description has been added."}
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            <button
+              className="inline-flex items-center justify-center gap-2 rounded-md border border-border bg-card px-4 py-2.5 text-label-md font-semibold text-foreground hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              onClick={() => {
+                setMutationError("");
+                setIsEditOpen(true);
+              }}
+              type="button"
+            >
+              <Pen aria-hidden="true" size={18} strokeWidth={1.75} />
+              Edit Program
+            </button>
+            <button
+              className="inline-flex cursor-not-allowed items-center justify-center gap-2 rounded-md border border-border bg-card px-4 py-2.5 text-label-md font-semibold text-muted-foreground opacity-60"
+              disabled
+              title="Bulk import will be added in the CSV import phase."
+              type="button"
+            >
+              <Upload aria-hidden="true" size={18} strokeWidth={1.75} />
+              Bulk Import
+            </button>
+            <button
+              className="inline-flex cursor-not-allowed items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-label-md font-semibold text-on-primary opacity-60"
+              disabled
+              title="Session creation will be added in the next step."
+              type="button"
+            >
+              <Plus aria-hidden="true" size={18} strokeWidth={1.75} />
+              Add Session
+            </button>
+          </div>
+        </header>
+
+        <section className="my-7 flex flex-col gap-4 rounded-xl border border-border bg-muted px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <p className="flex flex-wrap items-center gap-3 text-label-md text-muted-foreground">
+            <span className="text-foreground">
+              {sessions.length} {sessions.length === 1 ? "session" : "sessions"}{" "}
+              total
+            </span>
+            <span
+              aria-hidden="true"
+              className="h-1.5 w-1.5 rounded-full bg-primary"
+            />
+            <span>{formatTotalDuration(totalDuration)}</span>
+          </p>
+
+          <label className="flex items-center gap-3 text-label-md text-muted-foreground">
+            <span>Filter by:</span>
+            <select
+              className="rounded-md border border-transparent bg-card px-3 py-2 text-label-md text-primary outline-none focus:border-primary focus:ring-2 focus:ring-primary-fixed"
+              onChange={(event) =>
+                setMediaFilter(event.target.value as MediaFilter)
+              }
+              value={mediaFilter}
+            >
+              <option value="ALL">All Media</option>
+              <option value="AUDIO">Audio</option>
+              <option value="VIDEO">Video</option>
+            </select>
+          </label>
+        </section>
+
+        <SessionList sessions={filteredSessions} />
+      </div>
+
+      {isEditOpen ? (
+        <ProgramFormModal
+          error={mutationError}
+          isSubmitting={isSubmitting}
+          key={`edit-${program.id}`}
+          mode="edit"
+          onClose={() => {
+            if (!isSubmitting) {
+              setIsEditOpen(false);
+              setMutationError("");
+            }
+          }}
+          onSave={saveProgram}
+          program={program}
+        />
+      ) : null}
+    </main>
+  );
+}

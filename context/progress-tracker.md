@@ -29,7 +29,7 @@ Update this file after every completed feature. Any AI agent reading this should
 - [x] 08 Add Program modal
 - [x] 09 Edit Program modal
 - [x] 10 Program CRUD APIs
-- [ ] 11 Program image upload connection
+- [ ] 11 Program image upload connection - Skip for now
 - [x] 12 Program audit logs
 
 ### Phase 3 — Program Detail + Sessions
@@ -39,7 +39,7 @@ Update this file after every completed feature. Any AI agent reading this should
 - [ ] 15 Add Session modal
 - [ ] 16 Edit Session modal
 - [ ] 17 Session CRUD APIs
-- [ ] 18 Session media upload connection
+- [ ] 18 Session media upload connection - Skip for now
 - [ ] 19 Session audit logs
 
 ### Phase 4 — Session Reorder

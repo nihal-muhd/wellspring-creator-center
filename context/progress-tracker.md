@@ -6,9 +6,9 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ## Current Status
 
-**Current Phase:** Phase 6 — S3 Uploads
-**Last completed:** Secure S3 pre-signed uploads, media persistence, and old-object cleanup
-**Next:** Phase 7 — Audit Logs
+**Current Phase:** Phase 7 — Audit Logs
+**Last completed:** Tenant-scoped audit log viewer with search, filters, pagination, and metadata details
+**Next:** Phase 8 — Tests and Quality Pass
 
 ---
 
@@ -67,9 +67,9 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ### Phase 7 — Audit Logs
 
-- [ ] 34 Audit Logs page
-- [ ] 35 Audit log filters
-- [ ] 36 Audit log API
+- [x] 34 Audit Logs page
+- [x] 35 Audit log filters
+- [x] 36 Audit log API
 
 ### Phase 8 — Tests and Quality Pass
 
@@ -145,6 +145,14 @@ Update this file after every completed feature. Any AI agent reading this should
 - Frontend program/session adapters ignore stored object URLs and resolve temporary read URLs from `coverImageKey` and `mediaKey` before rendering cards or media previews.
 - Existing private program cover verification returned `200 OK` through the signed read URL while the direct stored object URL remained inaccessible.
 - Phase 6 verification passed backend TypeScript build, frontend ESLint, frontend standalone TypeScript checking, and `git diff --check`.
+- Audit Logs now uses `GET /audit-logs` with authenticated creator identity, newest-first ordering, server-side pagination, and creator-scoped query/count operations.
+- Audit log query parameters are validated with Zod and support exact action filtering, inclusive start/end dates, actor/action/target search, page, and limit.
+- The Audit Logs page matches the supplied reference through the existing workspace shell, pill search toolbar, compact filter card, responsive activity table, and semantic Wellspring tokens.
+- Desktop audit rows show action, actor email/role, timestamp, and detail action; mobile uses stacked rows without losing the same information.
+- Audit detail opens in an accessible modal with body scroll lock, keyboard focus containment/restoration, Escape/backdrop close, target summary, and readable nested metadata.
+- Audit loading, request failure, filtered empty, unfiltered empty, reset, and pagination states are implemented.
+- Phase 7 verification passed backend TypeScript build, frontend ESLint, frontend standalone TypeScript checking, and `git diff --check`.
+- The full Next.js production build remains blocked locally by the known external Windows file lock on `frontend/.next/trace` (`EPERM`).
 - Prioritize frontend first inside each phase.
 - Tenant isolation is the highest priority.
 - Every tenant-owned backend query must include `creatorId`.

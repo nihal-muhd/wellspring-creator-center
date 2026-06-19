@@ -371,6 +371,51 @@ Last updated: 2026-06-19
 **Pattern notes:**
 The CSV import modal uses the shared accessible workspace modal shell with body scroll lock, focus containment, Escape/backdrop close, a scrollable body, and a tonal footer. Keep this information-heavy modal at `max-w-2xl` with compact 20px body rhythm so it fits comfortably on laptop screens. The format panel separates required and optional columns, while sample CSV content uses the inverse surface for readable code. File selection is click-only rather than drag-and-drop. Empty and selected states occupy the same section; selected files show filename, formatted size, Change, and Remove controls. Accept only CSV files up to 10 MB and keep the import action disabled until a valid file is selected. During import, lock modal closing and file controls and change the action label to `Importing...`. After completion, keep the modal open: show imported/failed counts in a muted result panel, idempotent replays as a secondary-container badge, and each invalid row in a compact error-container item. Hide the import action after a successful response so the footer offers only Close and cannot submit the same result twice.
 
+### Audit Logs Page
+
+File: `frontend/components/audit-logs/AuditLogsPageContent.tsx`
+
+Last updated: 2026-06-19
+
+| Property | Class |
+| --- | --- |
+| Page background | `bg-background` |
+| Search toolbar | `border-b border-border bg-card/80 backdrop-blur-sm` |
+| Search field | `rounded-full border border-transparent bg-muted focus:border-primary focus:bg-card focus:ring-2 focus:ring-primary-fixed` |
+| Filter panel | `rounded-xl border border-border bg-card p-5 shadow-card sm:p-6` |
+| Filter fields | `rounded-md border border-transparent bg-muted focus:border-primary focus:bg-card focus:ring-2 focus:ring-primary-fixed` |
+| Activity container | `overflow-hidden rounded-xl border border-border bg-card shadow-card` |
+| Table header | `bg-muted text-label-sm uppercase tracking-wide text-muted-foreground` |
+| Table row | `border-border hover:bg-muted` |
+| Action icon | `rounded-md bg-primary-fixed text-on-primary-fixed-variant` |
+| Destructive icon | `rounded-md bg-error-container text-error` |
+| Pagination active | `rounded-md bg-primary text-on-primary` |
+
+**Pattern notes:**
+Audit history uses the same protected-page toolbar and pill search pattern as Programs. Keep filters inside one white card with compact uppercase labels and semantic muted inputs. Desktop uses a four-column activity table; mobile uses stacked rows with the same action icon, actor, timestamp, and detail action. Results are server-filtered and server-paginated, newest first. Loading preserves the row footprint, and filtered/unfiltered empty states use contextual copy and a reset action when appropriate.
+
+### Audit Log Detail Modal
+
+File: `frontend/components/audit-logs/AuditLogDetailModal.tsx`
+
+Last updated: 2026-06-19
+
+| Property | Class |
+| --- | --- |
+| Backdrop | `bg-inverse-surface/35 backdrop-blur-sm` |
+| Background | `bg-card` |
+| Border | `border border-border` |
+| Border radius | `rounded-xl` |
+| Shadow | `shadow-card` |
+| Heading | `text-headline-md text-primary` |
+| Summary panel | `rounded-xl border border-border bg-card p-4` |
+| Metadata rows | `rounded-md bg-muted px-3 py-2` |
+| Footer | `border-t border-border bg-muted px-5 py-3.5 sm:px-6` |
+| Primary action | `rounded-md bg-primary text-on-primary hover:bg-primary-container` |
+
+**Pattern notes:**
+Audit details use the shared accessible workspace modal treatment with body scroll lock, focus containment, focus restoration, Escape/backdrop close, a scrollable body, and tonal footer. Present actor, timestamp, target, and target ID in a compact summary panel. Render nested metadata as readable labeled muted rows instead of raw JSON.
+
 ## Component Workflow
 
 Before building any component:

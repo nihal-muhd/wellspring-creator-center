@@ -3,6 +3,7 @@ import express from "express";
 import helmet from "helmet";
 
 import { errorMiddleware } from "./middleware/error.middleware";
+import { auditRouter } from "./modules/audit/audit.routes";
 import { authRouter } from "./modules/auth/auth.routes";
 import { programsRouter } from "./modules/programs/programs.routes";
 import { sessionResourceRouter } from "./modules/sessions/sessions.routes";
@@ -31,6 +32,7 @@ app.get("/health", (_req, res) => {
 });
 
 app.use("/auth", authRouter);
+app.use("/audit-logs", auditRouter);
 app.use("/programs", programsRouter);
 app.use("/sessions", authMiddleware, sessionResourceRouter);
 app.use("/uploads", uploadsRouter);

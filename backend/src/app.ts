@@ -4,6 +4,7 @@ import helmet from "helmet";
 
 import { errorMiddleware } from "./middleware/error.middleware";
 import { authRouter } from "./modules/auth/auth.routes";
+import { programsRouter } from "./modules/programs/programs.routes";
 
 export const app = express();
 
@@ -27,4 +28,5 @@ app.get("/health", (_req, res) => {
 });
 
 app.use("/auth", authRouter);
+app.use("/programs", programsRouter);
 app.use(errorMiddleware);

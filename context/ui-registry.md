@@ -152,6 +152,24 @@ Last updated: 2026-06-18
 **Pattern notes:**
 Protected index pages use a slim tonal toolbar followed by a spacious constrained content area. Page actions sit beside the title on larger screens and stack beneath it on mobile. Keep primary actions compact, semantic, and paired with a Lucide icon.
 
+### Programs Loading and Request States
+
+File: `frontend/components/programs/ProgramsPageContent.tsx`
+
+Last updated: 2026-06-18
+
+| Property | Class |
+| --- | --- |
+| Skeleton background | `bg-surface-container` |
+| Skeleton container | `rounded-xl border border-border bg-card shadow-card` |
+| Request error | `bg-error-container text-on-error-container` |
+| Page error text | `text-label-md text-error` |
+| Retry action | `rounded-md bg-primary px-4 py-2.5 text-on-primary` |
+| Empty state | `rounded-xl border border-border bg-card p-6 shadow-card` |
+
+**Pattern notes:**
+Use card-shaped skeletons while workspace collections load, preserving the final grid footprint. Request-level mutation errors use the shared error-container alert pattern. Full collection failures show a centered retry action; successful empty collections show a contextual first-action CTA.
+
 ### Workspace Search Field
 
 File: `frontend/components/programs/ProgramsPageContent.tsx`
@@ -212,6 +230,7 @@ Last updated: 2026-06-18
 
 **Pattern notes:**
 Use this shared dialog shell for add/edit workspace forms. The header, scrollable form body, and tonal footer are visually separated with soft semantic borders. Modals close through the close icon, Cancel, backdrop, or Escape; lock body scrolling and contain keyboard focus while open.
+While saving, keep the modal open, disable closing controls and submission, show `Saving...`, and render API failures in the shared form error alert.
 
 ### Workspace Modal Form Fields
 

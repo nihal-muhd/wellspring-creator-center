@@ -14,16 +14,20 @@ import {
 import type { ProgramFormValues, ProgramSummary } from "@/types/program";
 
 type ProgramFormModalProps = {
+  error?: string;
+  isSubmitting?: boolean;
   mode: "add" | "edit";
   program?: ProgramSummary;
   onClose: () => void;
-  onSave: (values: ProgramFormValues) => void;
+  onSave: (values: ProgramFormValues) => Promise<void>;
 };
 
 const allowedImageTypes = ["image/jpeg", "image/png", "image/webp"];
 const maxImageSize = 10 * 1024 * 1024;
 
 export function ProgramFormModal({
+  error = "",
+  isSubmitting = false,
   mode,
   program,
   onClose,
@@ -128,7 +132,7 @@ export function ProgramFormModal({
     setImageError("");
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>): void {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
     const normalizedTitle = title.trim();
 
@@ -138,7 +142,7 @@ export function ProgramFormModal({
       return;
     }
 
-    onSave({
+    await onSave({
       title: normalizedTitle,
       description: description.trim(),
       coverImageUrl: coverImageUrl || undefined,
@@ -185,6 +189,15 @@ export function ProgramFormModal({
           onSubmit={handleSubmit}
         >
           <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-6 py-5">
+            {error ? (
+              <p
+                className="rounded-md bg-error-container px-3 py-2 text-label-sm text-on-error-container"
+                role="alert"
+              >
+                {error}
+              </p>
+            ) : null}
+
             <div>
               <label
                 className="text-label-sm uppercase tracking-wide text-muted-foreground"
@@ -253,6 +266,7 @@ export function ProgramFormModal({
                     <button
                       aria-label="Remove selected photo"
                       className="absolute right-1.5 top-1.5 rounded-full bg-inverse-surface/75 p-1 text-inverse-on-surface transition-colors hover:bg-inverse-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-primary"
+                      disabled={isSubmitting}
                       onClick={removeImage}
                       type="button"
                     >
@@ -274,6 +288,7 @@ export function ProgramFormModal({
                     accept="image/jpeg,image/png,image/webp"
                     aria-describedby={imageError ? imageErrorId : undefined}
                     className="sr-only"
+                    disabled={isSubmitting}
                     onChange={handleImageChange}
                     type="file"
                   />
@@ -293,16 +308,18 @@ export function ProgramFormModal({
           <footer className="flex items-center justify-end gap-3 border-t border-border bg-muted px-6 py-4">
             <button
               className="rounded-md px-4 py-2.5 text-label-md font-medium text-foreground transition-colors hover:bg-surface-container-high focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              disabled={isSubmitting}
               onClick={onClose}
               type="button"
             >
               Cancel
             </button>
             <button
-              className="rounded-md bg-primary px-4 py-2.5 text-label-md font-semibold text-on-primary transition-colors hover:bg-primary-container focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+              className="rounded-md bg-primary px-4 py-2.5 text-label-md font-semibold text-on-primary transition-colors hover:bg-primary-container focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-60"
+              disabled={isSubmitting}
               type="submit"
             >
-              {submitLabel}
+              {isSubmitting ? "Saving..." : submitLabel}
             </button>
           </footer>
         </form>

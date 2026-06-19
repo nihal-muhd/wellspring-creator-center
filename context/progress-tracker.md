@@ -7,8 +7,8 @@ Update this file after every completed feature. Any AI agent reading this should
 ## Current Status
 
 **Current Phase:** Phase 2 — Programs
-**Last completed:** Add/Edit Program modals
-**Next:** Program CRUD APIs
+**Last completed:** Programs UI connected to Program CRUD APIs
+**Next:** Program image upload connection
 
 ---
 
@@ -28,7 +28,7 @@ Update this file after every completed feature. Any AI agent reading this should
 - [x] 07 Programs page
 - [x] 08 Add Program modal
 - [x] 09 Edit Program modal
-- [ ] 10 Program CRUD APIs
+- [x] 10 Program CRUD APIs
 - [ ] 11 Program image upload connection
 - [ ] 12 Program audit logs
 
@@ -95,9 +95,13 @@ Update this file after every completed feature. Any AI agent reading this should
 - Login and signup replace the auth history entry after success, and the `(public-auth)` server layout redirects already-authenticated users away from `/login` and `/signup`.
 - Protected pages now share a responsive workspace sidebar with authenticated creator branding, active Programs/Audit Logs navigation, and functional cookie-based logout.
 - Programs page now matches the dashboard reference with a responsive search toolbar, page header, New Program action, program-card grid, and empty search state; pagination is intentionally omitted.
-- Programs currently use typed frontend demo data until Program CRUD APIs are implemented.
 - Add and edit use one accessible Program Form modal with title validation, optional description, local image selection/preview, keyboard focus containment, and responsive scrolling.
-- Program create/update currently modifies frontend state only; image previews are local data URLs until Program CRUD and S3 upload flows are connected.
+- Program CRUD API now provides authenticated list, create, detail, update, and delete endpoints under `/programs`.
+- Every Program repository query is tenant-scoped with `creatorId`; cross-tenant detail, update, and delete operations return `404`.
+- Program API validates request bodies and route parameters with Zod and returns session counts through `_count.sessions`.
+- Programs UI now loads real tenant programs and connects create, update, and delete actions to the API with loading skeletons, retry, empty, submitting, and request-error states.
+- API session expiry redirects the Programs UI to login; local image selections remain preview-only and are not sent as data URLs.
+- Program delete currently uses the browser confirmation prompt; a custom confirmation dialog can replace it during a later UI polish pass.
 - Prioritize frontend first inside each phase.
 - Tenant isolation is the highest priority.
 - Every tenant-owned backend query must include `creatorId`.

@@ -10,11 +10,20 @@ import Image from "next/image";
 import type { ProgramSummary } from "@/types/program";
 
 type ProgramCardProps = {
+  deletingProgramId?: string;
+  onDelete: (program: ProgramSummary) => void;
   program: ProgramSummary;
   onEdit: (program: ProgramSummary) => void;
 };
 
-export function ProgramCard({ program, onEdit }: ProgramCardProps) {
+export function ProgramCard({
+  deletingProgramId,
+  onDelete,
+  program,
+  onEdit,
+}: ProgramCardProps) {
+  const isDeleting = deletingProgramId === program.id;
+
   return (
     <article className="group overflow-hidden rounded-xl border border-border bg-card shadow-card">
       <div className="relative aspect-video overflow-hidden bg-surface-container">
@@ -81,8 +90,10 @@ export function ProgramCard({ program, onEdit }: ProgramCardProps) {
             </button>
             <button
               aria-label={`Delete ${program.title}`}
-              className="rounded-md p-1.5 text-error transition-colors hover:bg-error-container focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-error"
-              title="Delete will be connected with Program CRUD"
+              className="rounded-md p-1.5 text-error transition-colors hover:bg-error-container focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-error disabled:cursor-not-allowed disabled:opacity-60"
+              disabled={isDeleting}
+              onClick={() => onDelete(program)}
+              title={`Delete ${program.title}`}
               type="button"
             >
               <Trash2 aria-hidden="true" size={16} strokeWidth={1.75} />

@@ -14,14 +14,14 @@ import {
   updateProgram,
 } from "./programs.service";
 
-function getAuthenticatedCreatorId(req: Request): string {
-  const creatorId = req.user?.creatorId;
+function getAuthenticatedUser(req: Request) {
+  const authenticatedUser = req.user;
 
-  if (!creatorId) {
+  if (!authenticatedUser) {
     throw new AppError("Unauthorized.", 401);
   }
 
-  return creatorId;
+  return authenticatedUser;
 }
 
 export async function listProgramsController(
@@ -30,7 +30,7 @@ export async function listProgramsController(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const programs = await listPrograms(getAuthenticatedCreatorId(req));
+    const programs = await listPrograms(getAuthenticatedUser(req).creatorId);
 
     res.status(200).json({
       success: true,
@@ -48,7 +48,10 @@ export async function getProgramController(
 ): Promise<void> {
   try {
     const { programId } = programIdParamsSchema.parse(req.params);
-    const program = await getProgram(programId, getAuthenticatedCreatorId(req));
+    const program = await getProgram(
+      programId,
+      getAuthenticatedUser(req).creatorId,
+    );
 
     res.status(200).json({
       success: true,
@@ -66,7 +69,12 @@ export async function createProgramController(
 ): Promise<void> {
   try {
     const input = createProgramSchema.parse(req.body);
-    const program = await createProgram(getAuthenticatedCreatorId(req), input);
+    const authenticatedUser = getAuthenticatedUser(req);
+    const program = await createProgram(
+      authenticatedUser.creatorId,
+      authenticatedUser.userId,
+      input,
+    );
 
     res.status(201).json({
       success: true,
@@ -85,9 +93,11 @@ export async function updateProgramController(
   try {
     const { programId } = programIdParamsSchema.parse(req.params);
     const input = updateProgramSchema.parse(req.body);
+    const authenticatedUser = getAuthenticatedUser(req);
     const program = await updateProgram(
       programId,
-      getAuthenticatedCreatorId(req),
+      authenticatedUser.creatorId,
+      authenticatedUser.userId,
       input,
     );
 
@@ -107,9 +117,11 @@ export async function deleteProgramController(
 ): Promise<void> {
   try {
     const { programId } = programIdParamsSchema.parse(req.params);
+    const authenticatedUser = getAuthenticatedUser(req);
     const result = await deleteProgram(
       programId,
-      getAuthenticatedCreatorId(req),
+      authenticatedUser.creatorId,
+      authenticatedUser.userId,
     );
 
     res.status(200).json({

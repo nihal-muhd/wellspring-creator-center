@@ -7,7 +7,7 @@ Update this file after every completed feature. Any AI agent reading this should
 ## Current Status
 
 **Current Phase:** Phase 2 — Programs
-**Last completed:** Programs UI connected to Program CRUD APIs
+**Last completed:** Program audit logs
 **Next:** Program image upload connection
 
 ---
@@ -30,7 +30,7 @@ Update this file after every completed feature. Any AI agent reading this should
 - [x] 09 Edit Program modal
 - [x] 10 Program CRUD APIs
 - [ ] 11 Program image upload connection
-- [ ] 12 Program audit logs
+- [x] 12 Program audit logs
 
 ### Phase 3 — Program Detail + Sessions
 
@@ -102,6 +102,10 @@ Update this file after every completed feature. Any AI agent reading this should
 - Programs UI now loads real tenant programs and connects create, update, and delete actions to the API with loading skeletons, retry, empty, submitting, and request-error states.
 - API session expiry redirects the Programs UI to login; local image selections remain preview-only and are not sent as data URLs.
 - Program delete currently uses the browser confirmation prompt; a custom confirmation dialog can replace it during a later UI polish pass.
+- Program create, update, and delete now write `PROGRAM_CREATED`, `PROGRAM_UPDATED`, and `PROGRAM_DELETED` audit records.
+- Program mutations and their audit records run in one Prisma transaction so they succeed or roll back together.
+- Audit identity comes from the verified JWT (`creatorId` and `userId`); cross-tenant misses return `404` without creating audit records.
+- Program update audit metadata stores changed fields with previous/new values, while delete metadata preserves final program details and session count.
 - Prioritize frontend first inside each phase.
 - Tenant isolation is the highest priority.
 - Every tenant-owned backend query must include `creatorId`.

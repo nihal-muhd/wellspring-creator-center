@@ -27,19 +27,22 @@ export async function getProgram(programId: string, creatorId: string) {
 
 export async function createProgram(
   creatorId: string,
+  actorId: string,
   input: CreateProgramInput,
 ) {
-  return createProgramForCreator(creatorId, input);
+  return createProgramForCreator(creatorId, actorId, input);
 }
 
 export async function updateProgram(
   programId: string,
   creatorId: string,
+  actorId: string,
   input: UpdateProgramInput,
 ) {
   const program = await updateProgramForCreator(
     programId,
     creatorId,
+    actorId,
     input,
   );
 
@@ -53,14 +56,17 @@ export async function updateProgram(
 export async function deleteProgram(
   programId: string,
   creatorId: string,
+  actorId: string,
 ) {
-  const result = await deleteProgramForCreator(programId, creatorId);
+  const result = await deleteProgramForCreator(
+    programId,
+    creatorId,
+    actorId,
+  );
 
-  if (result.count === 0) {
+  if (!result) {
     throw new AppError("Program not found.", 404);
   }
 
-  return {
-    id: programId,
-  };
+  return result;
 }

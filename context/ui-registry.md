@@ -270,6 +270,7 @@ Last updated: 2026-06-18
 
 **Pattern notes:**
 Show a square local preview beside the upload control. Accept only JPEG, PNG, and WebP, show file guidance, and keep remove/change actions available before submission. Selected files remain local previews until Save; the page flow then requests a tenant-scoped pre-signed URL, uploads directly to S3, and persists the returned URL/key pair. Persisted images are displayed only through a 600-second authenticated read URL generated from the stored key; never render the stored object URL directly. Removing a persisted image submits null URL/key values so backend cleanup runs after the database update.
+Both local `data:` previews and temporary authenticated S3 read URLs render with Next Image optimization disabled. Signed read URL hostnames are temporary and must not require broad remote-host configuration.
 
 ### Program Detail Page
 

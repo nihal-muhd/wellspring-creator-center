@@ -163,6 +163,7 @@ Update this file after every completed feature. Any AI agent reading this should
 - Repository review confirmed all authenticated Program, Session, BulkImport, AuditLog, upload ownership, and authenticated-user queries include `creatorId`. Pre-auth signup/login email lookups are the intentional exception because email is globally unique and no trusted tenant identity exists yet.
 - No Prisma schema change or ad-hoc SQL was needed in Phase 8. `prisma migrate status` reports both committed migrations applied and the database schema up to date.
 - Phase 8 verification passed all 7 backend integration tests, backend TypeScript build, test TypeScript checking, frontend ESLint, frontend standalone TypeScript checking, Prisma migration status, and `git diff --check`.
+- Program edit modal image recovery fixed Next Image's `Invalid src prop` failure for temporary authenticated S3 read URLs by matching the existing unoptimized private-image rendering pattern.
 - Prioritize frontend first inside each phase.
 - Tenant isolation is the highest priority.
 - Every tenant-owned backend query must include `creatorId`.

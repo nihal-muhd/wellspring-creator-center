@@ -271,7 +271,7 @@ export function ProgramFormModal({
                       fill
                       sizes="128px"
                       src={coverImageUrl}
-                      unoptimized={coverImageUrl.startsWith("data:")}
+                      unoptimized
                     />
                     <button
                       aria-label="Remove selected photo"

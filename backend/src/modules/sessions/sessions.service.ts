@@ -2,6 +2,7 @@ import { AppError } from "../../lib/app-error";
 import { findProgramByIdForCreator } from "../programs/programs.repository";
 import {
   createSessionForCreator,
+  deleteSessionForCreator,
   findProgramSessionsForCreator,
   updateSessionForCreator,
 } from "./sessions.repository";
@@ -61,4 +62,22 @@ export async function updateSession(
   }
 
   return session;
+}
+
+export async function deleteSession(
+  sessionId: string,
+  creatorId: string,
+  actorId: string,
+) {
+  const result = await deleteSessionForCreator(
+    sessionId,
+    creatorId,
+    actorId,
+  );
+
+  if (!result) {
+    throw new AppError("Session not found.", 404);
+  }
+
+  return result;
 }

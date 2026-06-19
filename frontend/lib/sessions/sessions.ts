@@ -59,6 +59,10 @@ export async function updateSession(
   return mapSession(response.data.data);
 }
 
+export async function deleteSession(sessionId: string): Promise<void> {
+  await api.delete(`/sessions/${sessionId}`);
+}
+
 export function getSessionsErrorMessage(error: unknown): string {
   if (error instanceof AxiosError) {
     const response = error.response?.data as
@@ -85,4 +89,18 @@ export function getSessionMutationErrorMessage(error: unknown): string {
   }
 
   return "We could not save this session. Please try again.";
+}
+
+export function getSessionDeleteErrorMessage(error: unknown): string {
+  if (error instanceof AxiosError) {
+    const response = error.response?.data as
+      | ProgramApiErrorResponse
+      | undefined;
+
+    if (response?.error) {
+      return response.error;
+    }
+  }
+
+  return "We could not delete this session. Please try again.";
 }

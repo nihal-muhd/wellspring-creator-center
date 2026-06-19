@@ -1,9 +1,11 @@
-import { AudioLines, Film, Leaf, Pen } from "lucide-react";
+import { AudioLines, Film, Leaf, Pen, Trash2 } from "lucide-react";
 import Image from "next/image";
 
 import type { SessionSummary } from "@/types/session";
 
 type SessionListProps = {
+  deletingSessionId?: string;
+  onDelete: (session: SessionSummary) => void;
   onEdit: (session: SessionSummary) => void;
   sessions: SessionSummary[];
 };
@@ -12,7 +14,12 @@ function formatDuration(duration: number): string {
   return `${duration} min`;
 }
 
-export function SessionList({ onEdit, sessions }: SessionListProps) {
+export function SessionList({
+  deletingSessionId = "",
+  onDelete,
+  onEdit,
+  sessions,
+}: SessionListProps) {
   if (sessions.length === 0) {
     return (
       <section className="rounded-xl border border-border bg-card px-6 py-12 text-center shadow-card">
@@ -36,6 +43,7 @@ export function SessionList({ onEdit, sessions }: SessionListProps) {
     <section aria-label="Program sessions" className="space-y-5">
       {sessions.map((session) => {
         const MediaIcon = session.mediaType === "AUDIO" ? AudioLines : Film;
+        const isDeleting = deletingSessionId === session.id;
 
         return (
           <article
@@ -104,15 +112,28 @@ export function SessionList({ onEdit, sessions }: SessionListProps) {
                 </ul>
               ) : null}
 
-              <button
-                aria-label={`Edit ${session.title}`}
-                className="self-start rounded-md p-2.5 text-primary transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary sm:self-center"
-                onClick={() => onEdit(session)}
-                title={`Edit ${session.title}`}
-                type="button"
-              >
-                <Pen aria-hidden="true" size={18} strokeWidth={1.75} />
-              </button>
+              <div className="flex self-start sm:self-center">
+                <button
+                  aria-label={`Edit ${session.title}`}
+                  className="rounded-md p-2.5 text-primary transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                  disabled={isDeleting}
+                  onClick={() => onEdit(session)}
+                  title={`Edit ${session.title}`}
+                  type="button"
+                >
+                  <Pen aria-hidden="true" size={18} strokeWidth={1.75} />
+                </button>
+                <button
+                  aria-label={`Delete ${session.title}`}
+                  className="rounded-md p-2.5 text-error transition-colors hover:bg-error-container focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-error disabled:cursor-not-allowed disabled:opacity-60"
+                  disabled={isDeleting}
+                  onClick={() => onDelete(session)}
+                  title={`Delete ${session.title}`}
+                  type="button"
+                >
+                  <Trash2 aria-hidden="true" size={18} strokeWidth={1.75} />
+                </button>
+              </div>
             </div>
           </article>
         );

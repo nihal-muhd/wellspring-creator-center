@@ -2,6 +2,7 @@ import { Router } from "express";
 
 import {
   createSessionController,
+  deleteSessionController,
   listProgramSessionsController,
   updateSessionController,
 } from "./sessions.controller";
@@ -12,3 +13,4 @@ export const sessionResourceRouter = Router();
 sessionsRouter.get("/", listProgramSessionsController);
 sessionsRouter.post("/", createSessionController);
 sessionResourceRouter.patch("/:sessionId", updateSessionController);
+sessionResourceRouter.delete("/:sessionId", deleteSessionController);

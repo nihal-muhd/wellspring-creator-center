@@ -7,8 +7,8 @@ Update this file after every completed feature. Any AI agent reading this should
 ## Current Status
 
 **Current Phase:** Phase 3 — Program Detail + Sessions
-**Last completed:** Add/Edit Session modal with create/update APIs
-**Next:** Session delete API and action
+**Last completed:** Session CRUD APIs and audit logs
+**Next:** Phase 4 — Session reorder
 
 ---
 
@@ -38,9 +38,9 @@ Update this file after every completed feature. Any AI agent reading this should
 - [x] 14 Session list UI
 - [x] 15 Add Session modal
 - [x] 16 Edit Session modal
-- [ ] 17 Session CRUD APIs
+- [x] 17 Session CRUD APIs
 - [ ] 18 Session media upload connection - Skip for now
-- [ ] 19 Session audit logs
+- [x] 19 Session audit logs
 
 ### Phase 4 — Session Reorder
 
@@ -112,7 +112,8 @@ Update this file after every completed feature. Any AI agent reading this should
 - Session create uses `POST /programs/:programId/sessions`, assigns the next position inside a transaction, and writes a `SESSION_CREATED` audit record.
 - Session update uses `PATCH /sessions/:sessionId`, scopes lookup and update by `creatorId`, preserves program ownership, and writes a `SESSION_UPDATED` audit record with changed fields.
 - Session media file selection is preview-only until the S3 phase; selected local files are never sent as data URLs or stored as permanent media.
-- Session delete is still pending, so Phase 3 item 17 remains incomplete even though create, list, and update are connected.
+- Session delete uses `DELETE /sessions/:sessionId`, scopes lookup and deletion by `creatorId`, returns `404` for cross-tenant misses, and writes `SESSION_DELETED` in the same transaction.
+- Session cards expose compact edit/delete actions; delete uses confirmation, pending/disabled state, human-readable request errors, and immediately updates session count and total duration after success.
 - Prioritize frontend first inside each phase.
 - Tenant isolation is the highest priority.
 - Every tenant-owned backend query must include `creatorId`.

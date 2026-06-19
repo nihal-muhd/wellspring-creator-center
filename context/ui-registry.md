@@ -309,9 +309,10 @@ Last updated: 2026-06-19
 | Content spacing | `px-4 py-4 sm:px-5 sm:py-5` |
 | Tag | `rounded-full bg-secondary-container text-on-secondary-container` |
 | Edit hover | `hover:bg-muted` |
+| Delete action | `text-error hover:bg-error-container` |
 
 **Pattern notes:**
-Session rows use a responsive card/list hybrid with `space-y-5` between rows: a 144px desktop media preview, session metadata in the flexible center, calm tag chips, then a compact edit action. Horizontal gaps increase from 16px to 24px across breakpoints. Keep the list non-draggable until the reorder phase; do not introduce drag handles early.
+Session rows use a responsive card/list hybrid with `space-y-5` between rows: a 144px desktop media preview, session metadata in the flexible center, calm tag chips, then compact paired edit/delete actions. Keep edit primary-colored and deletion restrained with semantic error color that gains an error-container background on hover. Disable both row actions while that session is being deleted. Horizontal gaps increase from 16px to 24px across breakpoints. Keep the list non-draggable until the reorder phase; do not introduce drag handles early.
 
 ### Session Form Modal
 

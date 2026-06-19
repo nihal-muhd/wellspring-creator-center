@@ -16,7 +16,9 @@ import {
 } from "@/lib/programs/programs";
 import {
   createSession,
+  deleteSession,
   getProgramSessions,
+  getSessionDeleteErrorMessage,
   getSessionMutationErrorMessage,
   getSessionsErrorMessage,
   updateSession,
@@ -59,9 +61,11 @@ export function ProgramDetailPageContent({
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSessionSubmitting, setIsSessionSubmitting] = useState(false);
+  const [deletingSessionId, setDeletingSessionId] = useState("");
   const [loadError, setLoadError] = useState("");
   const [mutationError, setMutationError] = useState("");
   const [sessionMutationError, setSessionMutationError] = useState("");
+  const [sessionDeleteError, setSessionDeleteError] = useState("");
 
   const handleUnauthorized = useCallback(
     (error: unknown): boolean => {
@@ -231,6 +235,40 @@ export function ProgramDetailPageContent({
     }
   }
 
+  async function handleDeleteSession(session: SessionSummary): Promise<void> {
+    const confirmed = window.confirm(
+      `Delete "${session.title}"? This action cannot be undone.`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setDeletingSessionId(session.id);
+    setSessionDeleteError("");
+
+    try {
+      await deleteSession(session.id);
+      setSessions((currentSessions) =>
+        currentSessions.filter((item) => item.id !== session.id),
+      );
+      setProgram((currentProgram) =>
+        currentProgram
+          ? {
+              ...currentProgram,
+              sessionCount: Math.max(0, currentProgram.sessionCount - 1),
+            }
+          : currentProgram,
+      );
+    } catch (error) {
+      if (!handleUnauthorized(error)) {
+        setSessionDeleteError(getSessionDeleteErrorMessage(error));
+      }
+    } finally {
+      setDeletingSessionId("");
+    }
+  }
+
   if (isLoading) {
     return (
       <main
@@ -347,7 +385,18 @@ export function ProgramDetailPageContent({
 
         </section>
 
+        {sessionDeleteError ? (
+          <p
+            className="mb-5 rounded-md bg-error-container px-3 py-2 text-label-sm text-on-error-container"
+            role="alert"
+          >
+            {sessionDeleteError}
+          </p>
+        ) : null}
+
         <SessionList
+          deletingSessionId={deletingSessionId}
+          onDelete={(session) => void handleDeleteSession(session)}
           onEdit={(session) => openSessionModal("edit", session)}
           sessions={sessions}
         />

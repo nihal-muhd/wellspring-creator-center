@@ -9,6 +9,7 @@ import {
 } from "./sessions.schema";
 import {
   createSession,
+  deleteSession,
   listProgramSessions,
   updateSession,
 } from "./sessions.service";
@@ -86,6 +87,29 @@ export async function updateSessionController(
     res.status(200).json({
       success: true,
       data: session,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function deleteSessionController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const { sessionId } = sessionIdParamsSchema.parse(req.params);
+    const authenticatedUser = getAuthenticatedUser(req);
+    const result = await deleteSession(
+      sessionId,
+      authenticatedUser.creatorId,
+      authenticatedUser.userId,
+    );
+
+    res.status(200).json({
+      success: true,
+      data: result,
     });
   } catch (error) {
     next(error);

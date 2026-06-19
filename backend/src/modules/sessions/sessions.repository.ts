@@ -185,3 +185,58 @@ export async function updateSessionForCreator(
     return session;
   });
 }
+
+export async function deleteSessionForCreator(
+  sessionId: string,
+  creatorId: string,
+  actorId: string,
+) {
+  return prisma.$transaction(async (transaction) => {
+    const session = await transaction.session.findFirst({
+      where: {
+        id: sessionId,
+        creatorId,
+      },
+      select: sessionSelect,
+    });
+
+    if (!session) {
+      return null;
+    }
+
+    const result = await transaction.session.deleteMany({
+      where: {
+        id: sessionId,
+        creatorId,
+        programId: session.programId,
+      },
+    });
+
+    if (result.count === 0) {
+      return null;
+    }
+
+    await createAuditLog(transaction, {
+      creatorId,
+      actorId,
+      action: AuditAction.SESSION_DELETED,
+      targetEntity: TargetEntity.SESSION,
+      targetId: session.id,
+      metadata: {
+        programId: session.programId,
+        title: session.title,
+        duration: session.duration,
+        position: session.position,
+        instructorName: session.instructorName,
+        tags: session.tags,
+        mediaType: session.mediaType,
+        mediaUrl: session.mediaUrl,
+        mediaKey: session.mediaKey,
+      },
+    });
+
+    return {
+      id: session.id,
+    };
+  });
+}

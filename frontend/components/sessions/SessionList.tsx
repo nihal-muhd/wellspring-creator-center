@@ -15,7 +15,7 @@ function formatDuration(duration: number): string {
 export function SessionList({ onEdit, sessions }: SessionListProps) {
   if (sessions.length === 0) {
     return (
-      <section className="rounded-xl border border-border bg-card p-8 text-center shadow-card">
+      <section className="rounded-xl border border-border bg-card px-6 py-12 text-center shadow-card">
         <Leaf
           aria-hidden="true"
           className="mx-auto text-outline"
@@ -33,23 +33,23 @@ export function SessionList({ onEdit, sessions }: SessionListProps) {
   }
 
   return (
-    <section aria-label="Program sessions" className="space-y-4">
+    <section aria-label="Program sessions" className="space-y-5">
       {sessions.map((session) => {
         const MediaIcon = session.mediaType === "AUDIO" ? AudioLines : Film;
 
         return (
           <article
-            className="rounded-xl border border-border bg-card p-4 shadow-card sm:p-5"
+            className="rounded-xl border border-border bg-card px-4 py-4 shadow-card sm:px-5 sm:py-5"
             key={session.id}
           >
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-              <div className="relative aspect-video w-full shrink-0 overflow-hidden rounded-md bg-surface-container sm:w-32">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-5 lg:gap-6">
+              <div className="relative aspect-video w-full shrink-0 overflow-hidden rounded-md bg-surface-container sm:w-36">
                 {session.thumbnailUrl ? (
                   <Image
                     alt=""
                     className="object-cover"
                     fill
-                    sizes="128px"
+                    sizes="144px"
                     src={session.thumbnailUrl}
                     unoptimized
                   />
@@ -67,7 +67,7 @@ export function SessionList({ onEdit, sessions }: SessionListProps) {
                 </span>
               </div>
 
-              <div className="min-w-0 flex-1">
+              <div className="min-w-0 flex-1 py-0.5">
                 <p className="flex items-center gap-2 text-label-sm uppercase tracking-wide text-primary">
                   Session {String(session.position).padStart(2, "0")}
                   {session.mediaType ? (
@@ -78,10 +78,10 @@ export function SessionList({ onEdit, sessions }: SessionListProps) {
                     />
                   ) : null}
                 </p>
-                <h2 className="mt-1 text-lg font-semibold leading-snug text-foreground">
+                <h2 className="mt-1.5 text-lg font-semibold leading-snug text-foreground">
                   {session.title}
                 </h2>
-                <p className="mt-1 text-label-md text-muted-foreground">
+                <p className="mt-0.5 text-label-md text-muted-foreground">
                   {session.instructorName
                     ? `Instructor: ${session.instructorName}`
                     : "Instructor not assigned"}
@@ -91,11 +91,11 @@ export function SessionList({ onEdit, sessions }: SessionListProps) {
               {session.tags.length > 0 ? (
                 <ul
                   aria-label={`Tags for ${session.title}`}
-                  className="flex flex-wrap gap-2 sm:max-w-64 sm:justify-end"
+                  className="flex flex-wrap gap-2 sm:max-w-56 sm:justify-end lg:max-w-64"
                 >
                   {session.tags.map((tag) => (
                     <li
-                      className="rounded-full bg-secondary-container px-3 py-1 text-label-sm text-on-secondary-container"
+                      className="rounded-full bg-secondary-container px-3 py-1.5 text-label-sm text-on-secondary-container"
                       key={tag}
                     >
                       {tag}
@@ -106,7 +106,7 @@ export function SessionList({ onEdit, sessions }: SessionListProps) {
 
               <button
                 aria-label={`Edit ${session.title}`}
-                className="self-start rounded-md p-2 text-primary transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary sm:self-center"
+                className="self-start rounded-md p-2.5 text-primary transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary sm:self-center"
                 onClick={() => onEdit(session)}
                 title={`Edit ${session.title}`}
                 type="button"

@@ -286,10 +286,10 @@ Last updated: 2026-06-19
 | Summary panel | `rounded-xl border border-border bg-muted` |
 | Primary action | `rounded-md bg-primary text-on-primary hover:bg-primary-container` |
 | Secondary action | `rounded-md border border-border bg-card hover:bg-muted` |
-| Content spacing | `px-4 py-8 sm:px-6 lg:px-8 lg:py-10` |
+| Content spacing | `max-w-6xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12` |
 
 **Pattern notes:**
-Detail workspaces use the same translucent top toolbar as collection pages, followed by a spacious title/action header. Summary and filter controls share one muted rounded panel. Primary and secondary actions reuse established workspace button treatments, while unavailable future-phase actions remain visibly disabled.
+Detail workspaces use a centered `max-w-6xl` content measure so headers and session rows remain readable instead of stretching across the full app width. The same translucent top toolbar aligns its inner content to that measure. Use a spacious title/action header, 48px-tall actions, and a muted summary panel separated by 32px vertical margins.
 
 ### Session List Item
 
@@ -306,12 +306,12 @@ Last updated: 2026-06-19
 | Text — title | `text-lg font-semibold leading-snug text-foreground` |
 | Text — metadata | `text-label-md text-muted-foreground` |
 | Accent text | `text-label-sm uppercase tracking-wide text-primary` |
-| Content spacing | `p-4 sm:p-5` |
+| Content spacing | `px-4 py-4 sm:px-5 sm:py-5` |
 | Tag | `rounded-full bg-secondary-container text-on-secondary-container` |
 | Edit hover | `hover:bg-muted` |
 
 **Pattern notes:**
-Session rows use a responsive card/list hybrid: media preview first, session metadata in the flexible center, calm tag chips, then a compact edit action. Keep the list non-draggable until the reorder phase; do not introduce drag handles early.
+Session rows use a responsive card/list hybrid with `space-y-5` between rows: a 144px desktop media preview, session metadata in the flexible center, calm tag chips, then a compact edit action. Horizontal gaps increase from 16px to 24px across breakpoints. Keep the list non-draggable until the reorder phase; do not introduce drag handles early.
 
 ### Session Form Modal
 

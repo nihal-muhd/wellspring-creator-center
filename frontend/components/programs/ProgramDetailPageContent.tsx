@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  ArrowLeft,
-  Pen,
-  Plus,
-  Upload,
-} from "lucide-react";
+import { ArrowLeft, Pen, Plus, Upload } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -27,17 +22,11 @@ import {
   updateSession,
 } from "@/lib/sessions/sessions";
 import type { ProgramFormValues, ProgramSummary } from "@/types/program";
-import type {
-  SessionFormValues,
-  SessionMediaType,
-  SessionSummary,
-} from "@/types/session";
+import type { SessionFormValues, SessionSummary } from "@/types/session";
 
 type ProgramDetailPageContentProps = {
   programId: string;
 };
-
-type MediaFilter = "ALL" | SessionMediaType;
 
 function formatTotalDuration(totalMinutes: number): string {
   const hours = Math.floor(totalMinutes / 60);
@@ -60,14 +49,14 @@ export function ProgramDetailPageContent({
   const router = useRouter();
   const [program, setProgram] = useState<ProgramSummary | null>(null);
   const [sessions, setSessions] = useState<SessionSummary[]>([]);
-  const [mediaFilter, setMediaFilter] = useState<MediaFilter>("ALL");
   const [isLoading, setIsLoading] = useState(true);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [sessionModalMode, setSessionModalMode] = useState<
     "add" | "edit" | null
   >(null);
-  const [selectedSession, setSelectedSession] =
-    useState<SessionSummary | null>(null);
+  const [selectedSession, setSelectedSession] = useState<SessionSummary | null>(
+    null,
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSessionSubmitting, setIsSessionSubmitting] = useState(false);
   const [loadError, setLoadError] = useState("");
@@ -133,14 +122,6 @@ export function ProgramDetailPageContent({
       isActive = false;
     };
   }, [handleUnauthorized, programId]);
-
-  const filteredSessions = useMemo(
-    () =>
-      mediaFilter === "ALL"
-        ? sessions
-        : sessions.filter((session) => session.mediaType === mediaFilter),
-    [mediaFilter, sessions],
-  );
 
   const totalDuration = useMemo(
     () => sessions.reduce((total, session) => total + session.duration, 0),
@@ -228,10 +209,7 @@ export function ProgramDetailPageContent({
         );
       } else {
         const createdSession = await createSession(programId, input);
-        setSessions((currentSessions) => [
-          ...currentSessions,
-          createdSession,
-        ]);
+        setSessions((currentSessions) => [...currentSessions, createdSession]);
         setProgram((currentProgram) =>
           currentProgram
             ? {
@@ -262,7 +240,7 @@ export function ProgramDetailPageContent({
         <div className="border-b border-border bg-card/80 px-4 py-5 sm:px-6 lg:px-8">
           <div className="h-5 w-40 animate-pulse rounded-md bg-surface-container motion-reduce:animate-none" />
         </div>
-        <div className="mx-auto max-w-app space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-6xl space-y-7 px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
           <div className="h-10 w-2/3 animate-pulse rounded-md bg-surface-container motion-reduce:animate-none" />
           <div className="h-24 animate-pulse rounded-xl bg-surface-container motion-reduce:animate-none" />
           <div className="h-32 animate-pulse rounded-xl bg-surface-container motion-reduce:animate-none" />
@@ -301,28 +279,30 @@ export function ProgramDetailPageContent({
 
   return (
     <main className="min-h-dvh bg-background">
-      <div className="border-b border-border bg-card/80 px-4 py-5 backdrop-blur-sm sm:px-6 lg:px-8">
-        <Link
-          className="inline-flex items-center gap-2 text-label-md text-primary hover:underline focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-          href="/programs"
-        >
-          <ArrowLeft aria-hidden="true" size={18} strokeWidth={1.75} />
-          Back to Programs
-        </Link>
+      <div className="border-b border-border bg-card/80 backdrop-blur-sm">
+        <div className="mx-auto max-w-6xl px-4 py-4 sm:px-6 lg:px-8">
+          <Link
+            className="inline-flex items-center gap-2 text-label-md text-primary hover:underline focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            href="/programs"
+          >
+            <ArrowLeft aria-hidden="true" size={18} strokeWidth={1.75} />
+            Back to Programs
+          </Link>
+        </div>
       </div>
 
-      <div className="mx-auto w-full max-w-app px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
-        <header className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
-          <div className="max-w-3xl">
+      <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
+        <header className="flex flex-col gap-7 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-2xl">
             <h1 className="text-headline-lg text-primary">{program.title}</h1>
-            <p className="mt-2 text-body-md text-muted-foreground">
+            <p className="mt-3 max-w-xl text-body-md text-muted-foreground">
               {program.description || "No program description has been added."}
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-3 lg:justify-end">
             <button
-              className="inline-flex items-center justify-center gap-2 rounded-md border border-border bg-card px-4 py-2.5 text-label-md font-semibold text-foreground hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-border bg-card px-5 py-3 text-label-md font-semibold text-foreground hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
               onClick={() => {
                 setMutationError("");
                 setIsEditOpen(true);
@@ -333,7 +313,7 @@ export function ProgramDetailPageContent({
               Edit Program
             </button>
             <button
-              className="inline-flex cursor-not-allowed items-center justify-center gap-2 rounded-md border border-border bg-card px-4 py-2.5 text-label-md font-semibold text-muted-foreground opacity-60"
+              className="inline-flex min-h-12 cursor-not-allowed items-center justify-center gap-2 rounded-md border border-border bg-card px-5 py-3 text-label-md font-semibold text-muted-foreground opacity-60"
               disabled
               title="Bulk import will be added in the CSV import phase."
               type="button"
@@ -342,7 +322,7 @@ export function ProgramDetailPageContent({
               Bulk Import
             </button>
             <button
-              className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-label-md font-semibold text-on-primary hover:bg-primary-container focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-primary px-5 py-3 text-label-md font-semibold text-on-primary hover:bg-primary-container focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
               onClick={() => openSessionModal("add")}
               type="button"
             >
@@ -352,7 +332,7 @@ export function ProgramDetailPageContent({
           </div>
         </header>
 
-        <section className="my-7 flex flex-col gap-4 rounded-xl border border-border bg-muted px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <section className="my-8 flex min-h-20 flex-col justify-center gap-4 rounded-xl border border-border bg-muted px-5 py-5 sm:flex-row sm:items-center sm:justify-between lg:px-6">
           <p className="flex flex-wrap items-center gap-3 text-label-md text-muted-foreground">
             <span className="text-foreground">
               {sessions.length} {sessions.length === 1 ? "session" : "sessions"}{" "}
@@ -365,25 +345,11 @@ export function ProgramDetailPageContent({
             <span>{formatTotalDuration(totalDuration)}</span>
           </p>
 
-          <label className="flex items-center gap-3 text-label-md text-muted-foreground">
-            <span>Filter by:</span>
-            <select
-              className="rounded-md border border-transparent bg-card px-3 py-2 text-label-md text-primary outline-none focus:border-primary focus:ring-2 focus:ring-primary-fixed"
-              onChange={(event) =>
-                setMediaFilter(event.target.value as MediaFilter)
-              }
-              value={mediaFilter}
-            >
-              <option value="ALL">All Media</option>
-              <option value="AUDIO">Audio</option>
-              <option value="VIDEO">Video</option>
-            </select>
-          </label>
         </section>
 
         <SessionList
           onEdit={(session) => openSessionModal("edit", session)}
-          sessions={filteredSessions}
+          sessions={sessions}
         />
       </div>
 

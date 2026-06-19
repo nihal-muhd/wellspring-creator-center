@@ -47,7 +47,7 @@ function MetadataValue({
     typeof value === "boolean"
   ) {
     return (
-      <span className="break-words text-label-md text-foreground">
+      <span className="min-w-0 [overflow-wrap:anywhere] text-label-md text-foreground">
         {formatPrimitive(value)}
       </span>
     );
@@ -59,9 +59,12 @@ function MetadataValue({
     }
 
     return (
-      <ul className="space-y-2">
+      <ul className="min-w-0 space-y-2">
         {value.map((item, index) => (
-          <li className="rounded-md bg-muted px-3 py-2" key={index}>
+          <li
+            className="min-w-0 rounded-md bg-muted px-3 py-2"
+            key={index}
+          >
             <MetadataValue depth={depth + 1} value={item} />
           </li>
         ))}
@@ -76,16 +79,21 @@ function MetadataValue({
   }
 
   return (
-    <dl className={depth === 0 ? "space-y-3" : "space-y-2"}>
+    <dl
+      className={[
+        "min-w-0",
+        depth === 0 ? "space-y-3" : "space-y-2",
+      ].join(" ")}
+    >
       {entries.map(([key, item]) => (
         <div
-          className="grid gap-1 rounded-md bg-muted px-3 py-2 sm:grid-cols-[9rem_1fr]"
+          className="grid min-w-0 gap-1 rounded-md bg-muted px-3 py-2 sm:grid-cols-[7rem_minmax(0,1fr)] sm:gap-3"
           key={key}
         >
-          <dt className="text-label-sm uppercase tracking-wide text-muted-foreground">
+          <dt className="min-w-0 [overflow-wrap:anywhere] text-label-sm uppercase tracking-wide text-muted-foreground">
             {formatKey(key)}
           </dt>
-          <dd>
+          <dd className="min-w-0">
             <MetadataValue depth={depth + 1} value={item} />
           </dd>
         </div>
@@ -168,16 +176,16 @@ export function AuditLogDetailModal({
         type="button"
       />
       <section
-        className="relative flex max-h-[calc(100dvh-2rem)] w-full max-w-2xl flex-col overflow-hidden rounded-xl border border-border bg-card shadow-card"
+        className="relative flex max-h-[calc(100dvh-2rem)] w-full max-w-xl flex-col overflow-hidden rounded-xl border border-border bg-card shadow-card"
         ref={dialogRef}
       >
-        <header className="flex items-start justify-between gap-4 border-b border-border px-5 py-4 sm:px-6">
-          <div>
+        <header className="flex items-start justify-between gap-3 border-b border-border px-4 py-3.5 sm:px-5">
+          <div className="min-w-0">
             <p className="text-label-sm uppercase tracking-wide text-muted-foreground">
               Audit log details
             </p>
             <h2
-              className="mt-1 text-headline-md text-primary"
+              className="mt-1 [overflow-wrap:anywhere] text-headline-md text-primary"
               id="audit-log-detail-title"
             >
               {actionLabel}
@@ -194,17 +202,17 @@ export function AuditLogDetailModal({
           </button>
         </header>
 
-        <div className="overflow-y-auto px-5 py-5 sm:px-6">
-          <dl className="grid gap-4 rounded-xl border border-border bg-card p-4 sm:grid-cols-2">
-            <div>
+        <div className="min-w-0 overflow-x-hidden overflow-y-auto px-4 py-4 sm:px-5">
+          <dl className="grid min-w-0 gap-3 rounded-xl border border-border bg-card p-3.5 sm:grid-cols-2 sm:p-4">
+            <div className="min-w-0">
               <dt className="text-label-sm uppercase tracking-wide text-muted-foreground">
                 Performed by
               </dt>
-              <dd className="mt-1 break-all text-label-md text-foreground">
+              <dd className="mt-1 min-w-0 [overflow-wrap:anywhere] text-label-md text-foreground">
                 {log.actor.email}
               </dd>
             </div>
-            <div>
+            <div className="min-w-0">
               <dt className="text-label-sm uppercase tracking-wide text-muted-foreground">
                 Date and time
               </dt>
@@ -215,7 +223,7 @@ export function AuditLogDetailModal({
                 }).format(new Date(log.createdAt))}
               </dd>
             </div>
-            <div>
+            <div className="min-w-0">
               <dt className="text-label-sm uppercase tracking-wide text-muted-foreground">
                 Target
               </dt>
@@ -223,27 +231,27 @@ export function AuditLogDetailModal({
                 {formatKey(log.targetEntity)}
               </dd>
             </div>
-            <div>
+            <div className="min-w-0">
               <dt className="text-label-sm uppercase tracking-wide text-muted-foreground">
                 Target ID
               </dt>
-              <dd className="mt-1 break-all text-label-md text-foreground">
+              <dd className="mt-1 min-w-0 [overflow-wrap:anywhere] text-label-md text-foreground">
                 {log.targetId ?? "Not recorded"}
               </dd>
             </div>
           </dl>
 
-          <section className="mt-5">
+          <section className="mt-4 min-w-0">
             <h3 className="text-lg font-semibold text-foreground">
               Activity details
             </h3>
-            <div className="mt-3">
+            <div className="mt-2.5 min-w-0">
               <MetadataValue value={log.metadata ?? {}} />
             </div>
           </section>
         </div>
 
-        <footer className="flex justify-end border-t border-border bg-muted px-5 py-3.5 sm:px-6">
+        <footer className="flex justify-end border-t border-border bg-muted px-4 py-3 sm:px-5">
           <button
             className="rounded-md bg-primary px-4 py-2.5 text-label-md font-semibold text-on-primary transition-colors hover:bg-primary-container focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
             onClick={onClose}

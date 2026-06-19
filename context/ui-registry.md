@@ -407,14 +407,18 @@ Last updated: 2026-06-19
 | Border | `border border-border` |
 | Border radius | `rounded-xl` |
 | Shadow | `shadow-card` |
+| Modal width | `max-w-xl` |
 | Heading | `text-headline-md text-primary` |
-| Summary panel | `rounded-xl border border-border bg-card p-4` |
-| Metadata rows | `rounded-md bg-muted px-3 py-2` |
-| Footer | `border-t border-border bg-muted px-5 py-3.5 sm:px-6` |
+| Body containment | `min-w-0 overflow-x-hidden overflow-y-auto` |
+| Summary panel | `rounded-xl border border-border bg-card p-3.5 sm:p-4` |
+| Metadata rows | `min-w-0 rounded-md bg-muted px-3 py-2` |
+| Metadata grid | `sm:grid-cols-[7rem_minmax(0,1fr)]` |
+| Long text | `min-w-0 [overflow-wrap:anywhere]` |
+| Footer | `border-t border-border bg-muted px-4 py-3 sm:px-5` |
 | Primary action | `rounded-md bg-primary text-on-primary hover:bg-primary-container` |
 
 **Pattern notes:**
-Audit details use the shared accessible workspace modal treatment with body scroll lock, focus containment, focus restoration, Escape/backdrop close, a scrollable body, and tonal footer. Present actor, timestamp, target, and target ID in a compact summary panel. Render nested metadata as readable labeled muted rows instead of raw JSON.
+Audit details use the shared accessible workspace modal treatment with body scroll lock, focus containment, focus restoration, Escape/backdrop close, a scrollable body, and tonal footer. Keep the shell at `max-w-xl` with compact spacing. Present actor, timestamp, target, and target ID in a compact summary panel. Render nested metadata as readable labeled muted rows instead of raw JSON. Every nested container must allow shrinking with `min-w-0`; metadata value columns use `minmax(0,1fr)`, and uninterrupted URLs, IDs, and S3 keys use `overflow-wrap:anywhere` so the modal never gains horizontal scrolling.
 
 ## Component Workflow
 

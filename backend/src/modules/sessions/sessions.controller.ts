@@ -4,6 +4,7 @@ import { AppError } from "../../lib/app-error";
 import {
   createSessionSchema,
   programSessionsParamsSchema,
+  reorderSessionsSchema,
   sessionIdParamsSchema,
   updateSessionSchema,
 } from "./sessions.schema";
@@ -11,6 +12,7 @@ import {
   createSession,
   deleteSession,
   listProgramSessions,
+  reorderSessions,
   updateSession,
 } from "./sessions.service";
 
@@ -62,6 +64,31 @@ export async function createSessionController(
     res.status(201).json({
       success: true,
       data: session,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function reorderSessionsController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const { programId } = programSessionsParamsSchema.parse(req.params);
+    const { sessionIds } = reorderSessionsSchema.parse(req.body);
+    const authenticatedUser = getAuthenticatedUser(req);
+    const sessions = await reorderSessions(
+      programId,
+      authenticatedUser.creatorId,
+      authenticatedUser.userId,
+      sessionIds,
+    );
+
+    res.status(200).json({
+      success: true,
+      data: sessions,
     });
   } catch (error) {
     next(error);

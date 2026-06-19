@@ -106,6 +106,88 @@ export async function createSessionForCreator(
   });
 }
 
+export async function reorderSessionsForCreator(
+  programId: string,
+  creatorId: string,
+  actorId: string,
+  sessionIds: string[],
+) {
+  return prisma.$transaction(async (transaction) => {
+    const program = await transaction.program.findFirst({
+      where: {
+        id: programId,
+        creatorId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!program) {
+      return { status: "program-not-found" as const };
+    }
+
+    const existingSessions = await transaction.session.findMany({
+      where: {
+        programId,
+        creatorId,
+      },
+      orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+      select: {
+        id: true,
+      },
+    });
+    const existingIds = new Set(existingSessions.map((session) => session.id));
+    const hasCompleteOrder =
+      sessionIds.length === existingSessions.length &&
+      sessionIds.every((sessionId) => existingIds.has(sessionId));
+
+    if (!hasCompleteOrder) {
+      return { status: "invalid-order" as const };
+    }
+
+    await Promise.all(
+      sessionIds.map((sessionId, index) =>
+        transaction.session.updateMany({
+          where: {
+            id: sessionId,
+            programId,
+            creatorId,
+          },
+          data: {
+            position: index + 1,
+          },
+        }),
+      ),
+    );
+
+    await createAuditLog(transaction, {
+      creatorId,
+      actorId,
+      action: AuditAction.SESSION_REORDERED,
+      targetEntity: TargetEntity.PROGRAM,
+      targetId: programId,
+      metadata: {
+        sessionIds,
+      },
+    });
+
+    const sessions = await transaction.session.findMany({
+      where: {
+        programId,
+        creatorId,
+      },
+      orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+      select: sessionSelect,
+    });
+
+    return {
+      status: "success" as const,
+      sessions,
+    };
+  });
+}
+
 export async function updateSessionForCreator(
   sessionId: string,
   creatorId: string,

@@ -20,7 +20,9 @@ import {
   getProgramSessions,
   getSessionDeleteErrorMessage,
   getSessionMutationErrorMessage,
+  getSessionReorderErrorMessage,
   getSessionsErrorMessage,
+  reorderSessions,
   updateSession,
 } from "@/lib/sessions/sessions";
 import type { ProgramFormValues, ProgramSummary } from "@/types/program";
@@ -61,11 +63,13 @@ export function ProgramDetailPageContent({
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSessionSubmitting, setIsSessionSubmitting] = useState(false);
+  const [isReordering, setIsReordering] = useState(false);
   const [deletingSessionId, setDeletingSessionId] = useState("");
   const [loadError, setLoadError] = useState("");
   const [mutationError, setMutationError] = useState("");
   const [sessionMutationError, setSessionMutationError] = useState("");
   const [sessionDeleteError, setSessionDeleteError] = useState("");
+  const [sessionReorderError, setSessionReorderError] = useState("");
 
   const handleUnauthorized = useCallback(
     (error: unknown): boolean => {
@@ -269,6 +273,46 @@ export function ProgramDetailPageContent({
     }
   }
 
+  async function handleReorderSessions(sessionIds: string[]): Promise<void> {
+    const previousSessions = sessions;
+    const sessionById = new Map(
+      previousSessions.map((session) => [session.id, session]),
+    );
+    const optimisticSessions = sessionIds.flatMap((sessionId, index) => {
+      const session = sessionById.get(sessionId);
+
+      return session
+        ? [
+            {
+              ...session,
+              position: index + 1,
+            },
+          ]
+        : [];
+    });
+
+    if (optimisticSessions.length !== previousSessions.length) {
+      return;
+    }
+
+    setSessions(optimisticSessions);
+    setIsReordering(true);
+    setSessionReorderError("");
+
+    try {
+      const persistedSessions = await reorderSessions(programId, sessionIds);
+      setSessions(persistedSessions);
+    } catch (error) {
+      setSessions(previousSessions);
+
+      if (!handleUnauthorized(error)) {
+        setSessionReorderError(getSessionReorderErrorMessage(error));
+      }
+    } finally {
+      setIsReordering(false);
+    }
+  }
+
   if (isLoading) {
     return (
       <main
@@ -360,7 +404,8 @@ export function ProgramDetailPageContent({
               Bulk Import
             </button>
             <button
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-primary px-5 py-3 text-label-md font-semibold text-on-primary hover:bg-primary-container focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-primary px-5 py-3 text-label-md font-semibold text-on-primary hover:bg-primary-container focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-60"
+              disabled={isReordering || Boolean(deletingSessionId)}
               onClick={() => openSessionModal("add")}
               type="button"
             >
@@ -383,7 +428,24 @@ export function ProgramDetailPageContent({
             <span>{formatTotalDuration(totalDuration)}</span>
           </p>
 
+          <p
+            aria-live="polite"
+            className="text-label-sm text-muted-foreground"
+          >
+            {isReordering
+              ? "Saving session order..."
+              : "Drag the handles to reorder sessions."}
+          </p>
         </section>
+
+        {sessionReorderError ? (
+          <p
+            className="mb-5 rounded-md bg-error-container px-3 py-2 text-label-sm text-on-error-container"
+            role="alert"
+          >
+            {sessionReorderError}
+          </p>
+        ) : null}
 
         {sessionDeleteError ? (
           <p
@@ -396,8 +458,10 @@ export function ProgramDetailPageContent({
 
         <SessionList
           deletingSessionId={deletingSessionId}
+          isReordering={isReordering}
           onDelete={(session) => void handleDeleteSession(session)}
           onEdit={(session) => openSessionModal("edit", session)}
+          onReorder={(sessionIds) => void handleReorderSessions(sessionIds)}
           sessions={sessions}
         />
       </div>

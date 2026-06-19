@@ -63,5 +63,20 @@ export const updateSessionSchema = z
     message: "Provide at least one field to update.",
   });
 
+export const reorderSessionsSchema = z
+  .object({
+    sessionIds: z
+      .array(z.string().trim().min(1, "Session IDs cannot be empty."))
+      .min(1, "At least one session ID is required."),
+  })
+  .refine(
+    ({ sessionIds }) => new Set(sessionIds).size === sessionIds.length,
+    {
+      message: "Session IDs must not contain duplicates.",
+      path: ["sessionIds"],
+    },
+  );
+
 export type CreateSessionInput = z.infer<typeof createSessionSchema>;
+export type ReorderSessionsInput = z.infer<typeof reorderSessionsSchema>;
 export type UpdateSessionInput = z.infer<typeof updateSessionSchema>;

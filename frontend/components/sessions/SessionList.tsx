@@ -1,25 +1,72 @@
-import { AudioLines, Film, Leaf, Pen, Trash2 } from "lucide-react";
-import Image from "next/image";
+"use client";
 
+import {
+  closestCenter,
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { Leaf } from "lucide-react";
+
+import { SortableSessionItem } from "@/components/sessions/SortableSessionItem";
 import type { SessionSummary } from "@/types/session";
 
 type SessionListProps = {
   deletingSessionId?: string;
+  isReordering?: boolean;
   onDelete: (session: SessionSummary) => void;
   onEdit: (session: SessionSummary) => void;
+  onReorder: (sessionIds: string[]) => void;
   sessions: SessionSummary[];
 };
 
-function formatDuration(duration: number): string {
-  return `${duration} min`;
-}
-
 export function SessionList({
   deletingSessionId = "",
+  isReordering = false,
   onDelete,
   onEdit,
+  onReorder,
   sessions,
 }: SessionListProps) {
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  function handleDragEnd(event: DragEndEvent): void {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id || isReordering) {
+      return;
+    }
+
+    const oldIndex = sessions.findIndex((session) => session.id === active.id);
+    const newIndex = sessions.findIndex((session) => session.id === over.id);
+
+    if (oldIndex < 0 || newIndex < 0) {
+      return;
+    }
+
+    const reorderedIds = sessions.map((session) => session.id);
+    const [movedId] = reorderedIds.splice(oldIndex, 1);
+    reorderedIds.splice(newIndex, 0, movedId);
+    onReorder(reorderedIds);
+  }
+
   if (sessions.length === 0) {
     return (
       <section className="rounded-xl border border-border bg-card px-6 py-12 text-center shadow-card">
@@ -33,111 +80,37 @@ export function SessionList({
           No sessions here yet
         </h2>
         <p className="mt-1 text-label-md text-muted-foreground">
-          Session creation will be connected in the next step.
+          Add your first session to start building this program.
         </p>
       </section>
     );
   }
 
   return (
-    <section aria-label="Program sessions" className="space-y-5">
-      {sessions.map((session) => {
-        const MediaIcon = session.mediaType === "AUDIO" ? AudioLines : Film;
-        const isDeleting = deletingSessionId === session.id;
-
-        return (
-          <article
-            className="rounded-xl border border-border bg-card px-4 py-4 shadow-card sm:px-5 sm:py-5"
-            key={session.id}
-          >
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-5 lg:gap-6">
-              <div className="relative aspect-video w-full shrink-0 overflow-hidden rounded-md bg-surface-container sm:w-36">
-                {session.thumbnailUrl ? (
-                  <Image
-                    alt=""
-                    className="object-cover"
-                    fill
-                    sizes="144px"
-                    src={session.thumbnailUrl}
-                    unoptimized
-                  />
-                ) : (
-                  <div className="flex h-full items-center justify-center text-primary">
-                    <MediaIcon
-                      aria-hidden="true"
-                      size={26}
-                      strokeWidth={1.5}
-                    />
-                  </div>
-                )}
-                <span className="absolute bottom-1.5 right-1.5 rounded-sm bg-inverse-surface/80 px-1.5 py-0.5 text-label-sm text-inverse-on-surface">
-                  {formatDuration(session.duration)}
-                </span>
-              </div>
-
-              <div className="min-w-0 flex-1 py-0.5">
-                <p className="flex items-center gap-2 text-label-sm uppercase tracking-wide text-primary">
-                  Session {String(session.position).padStart(2, "0")}
-                  {session.mediaType ? (
-                    <MediaIcon
-                      aria-label={session.mediaType.toLowerCase()}
-                      size={15}
-                      strokeWidth={1.75}
-                    />
-                  ) : null}
-                </p>
-                <h2 className="mt-1.5 text-lg font-semibold leading-snug text-foreground">
-                  {session.title}
-                </h2>
-                <p className="mt-0.5 text-label-md text-muted-foreground">
-                  {session.instructorName
-                    ? `Instructor: ${session.instructorName}`
-                    : "Instructor not assigned"}
-                </p>
-              </div>
-
-              {session.tags.length > 0 ? (
-                <ul
-                  aria-label={`Tags for ${session.title}`}
-                  className="flex flex-wrap gap-2 sm:max-w-56 sm:justify-end lg:max-w-64"
-                >
-                  {session.tags.map((tag) => (
-                    <li
-                      className="rounded-full bg-secondary-container px-3 py-1.5 text-label-sm text-on-secondary-container"
-                      key={tag}
-                    >
-                      {tag}
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-
-              <div className="flex self-start sm:self-center">
-                <button
-                  aria-label={`Edit ${session.title}`}
-                  className="rounded-md p-2.5 text-primary transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-                  disabled={isDeleting}
-                  onClick={() => onEdit(session)}
-                  title={`Edit ${session.title}`}
-                  type="button"
-                >
-                  <Pen aria-hidden="true" size={18} strokeWidth={1.75} />
-                </button>
-                <button
-                  aria-label={`Delete ${session.title}`}
-                  className="rounded-md p-2.5 text-error transition-colors hover:bg-error-container focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-error disabled:cursor-not-allowed disabled:opacity-60"
-                  disabled={isDeleting}
-                  onClick={() => onDelete(session)}
-                  title={`Delete ${session.title}`}
-                  type="button"
-                >
-                  <Trash2 aria-hidden="true" size={18} strokeWidth={1.75} />
-                </button>
-              </div>
-            </div>
-          </article>
-        );
-      })}
-    </section>
+    <DndContext
+      collisionDetection={closestCenter}
+      onDragEnd={handleDragEnd}
+      sensors={sensors}
+    >
+      <SortableContext
+        items={sessions.map((session) => session.id)}
+        strategy={verticalListSortingStrategy}
+      >
+        <section aria-label="Program sessions" className="space-y-5">
+          {sessions.map((session) => (
+            <SortableSessionItem
+              isDeleting={deletingSessionId === session.id}
+              isInteractionDisabled={
+                isReordering || Boolean(deletingSessionId)
+              }
+              key={session.id}
+              onDelete={onDelete}
+              onEdit={onEdit}
+              session={session}
+            />
+          ))}
+        </section>
+      </SortableContext>
+    </DndContext>
   );
 }

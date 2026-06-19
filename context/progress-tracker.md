@@ -6,9 +6,9 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ## Current Status
 
-**Current Phase:** Phase 3 — Program Detail + Sessions
-**Last completed:** Session CRUD APIs and audit logs
-**Next:** Phase 4 — Session reorder
+**Current Phase:** Phase 4 — Session Reorder
+**Last completed:** Drag-and-drop session reorder with transactional persistence and audit logging
+**Next:** Phase 5 — CSV Import
 
 ---
 
@@ -44,10 +44,10 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ### Phase 4 — Session Reorder
 
-- [ ] 20 Drag-and-drop session reorder UI
-- [ ] 21 Reorder API
-- [ ] 22 Save reordered positions
-- [ ] 23 Reorder audit log
+- [x] 20 Drag-and-drop session reorder UI
+- [x] 21 Reorder API
+- [x] 22 Save reordered positions
+- [x] 23 Reorder audit log
 
 ### Phase 5 — CSV Import
 
@@ -114,6 +114,11 @@ Update this file after every completed feature. Any AI agent reading this should
 - Session media file selection is preview-only until the S3 phase; selected local files are never sent as data URLs or stored as permanent media.
 - Session delete uses `DELETE /sessions/:sessionId`, scopes lookup and deletion by `creatorId`, returns `404` for cross-tenant misses, and writes `SESSION_DELETED` in the same transaction.
 - Session cards expose compact edit/delete actions; delete uses confirmation, pending/disabled state, human-readable request errors, and immediately updates session count and total duration after success.
+- Session reorder uses dnd-kit with dedicated pointer and keyboard-accessible drag handles inside the existing session card pattern.
+- Reorder applies an optimistic local order, renumbers visible positions from `1`, disables conflicting row actions while saving, and restores the previous order with a human-readable error if persistence fails.
+- `POST /programs/:programId/sessions/reorder` accepts the complete ordered session ID list and rejects duplicate, missing, foreign-program, or cross-tenant IDs.
+- Backend reorder verifies program ownership, updates every position, and writes one `SESSION_REORDERED` audit record in the same Prisma transaction.
+- Phase 4 verification passed backend TypeScript build, frontend ESLint, frontend standalone TypeScript checking, and `git diff --check`. The full Next.js build remains blocked locally by an external Windows file lock on `frontend/.next/trace`.
 - Prioritize frontend first inside each phase.
 - Tenant isolation is the highest priority.
 - Every tenant-owned backend query must include `creatorId`.

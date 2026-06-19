@@ -63,6 +63,19 @@ export async function deleteSession(sessionId: string): Promise<void> {
   await api.delete(`/sessions/${sessionId}`);
 }
 
+export async function reorderSessions(
+  programId: string,
+  sessionIds: string[],
+): Promise<SessionSummary[]> {
+  const response = await api.post<
+    ProgramApiSuccessResponse<SessionApiRecord[]>
+  >(`/programs/${programId}/sessions/reorder`, {
+    sessionIds,
+  });
+
+  return response.data.data.map(mapSession);
+}
+
 export function getSessionsErrorMessage(error: unknown): string {
   if (error instanceof AxiosError) {
     const response = error.response?.data as
@@ -103,4 +116,18 @@ export function getSessionDeleteErrorMessage(error: unknown): string {
   }
 
   return "We could not delete this session. Please try again.";
+}
+
+export function getSessionReorderErrorMessage(error: unknown): string {
+  if (error instanceof AxiosError) {
+    const response = error.response?.data as
+      | ProgramApiErrorResponse
+      | undefined;
+
+    if (response?.error) {
+      return response.error;
+    }
+  }
+
+  return "We could not save the new session order. Your previous order has been restored.";
 }

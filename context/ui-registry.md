@@ -293,7 +293,7 @@ Detail workspaces use a centered `max-w-6xl` content measure so headers and sess
 
 ### Session List Item
 
-File: `frontend/components/sessions/SessionList.tsx`
+Files: `frontend/components/sessions/SessionList.tsx`, `frontend/components/sessions/SortableSessionItem.tsx`
 
 Last updated: 2026-06-19
 
@@ -308,11 +308,13 @@ Last updated: 2026-06-19
 | Accent text | `text-label-sm uppercase tracking-wide text-primary` |
 | Content spacing | `px-4 py-4 sm:px-5 sm:py-5` |
 | Tag | `rounded-full bg-secondary-container text-on-secondary-container` |
+| Drag handle | `rounded-md p-2 text-outline hover:bg-muted hover:text-primary` |
+| Active drag state | `border-primary opacity-80` |
 | Edit hover | `hover:bg-muted` |
 | Delete action | `text-error hover:bg-error-container` |
 
 **Pattern notes:**
-Session rows use a responsive card/list hybrid with `space-y-5` between rows: a 144px desktop media preview, session metadata in the flexible center, calm tag chips, then compact paired edit/delete actions. Keep edit primary-colored and deletion restrained with semantic error color that gains an error-container background on hover. Disable both row actions while that session is being deleted. Horizontal gaps increase from 16px to 24px across breakpoints. Keep the list non-draggable until the reorder phase; do not introduce drag handles early.
+Session rows use a responsive card/list hybrid with `space-y-5` between rows: a dedicated drag handle, 144px desktop media preview, session metadata in the flexible center, calm tag chips, then compact paired edit/delete actions. The handle uses the muted outline color at rest and semantic primary color on hover/focus. Pointer dragging requires deliberate movement, and keyboard dragging uses the same handle. Keep edit primary-colored and deletion restrained with semantic error color. Disable drag, edit, and delete interactions while reorder persistence or deletion is in progress. The active row keeps the existing card treatment while changing to a primary border and reduced opacity.
 
 ### Session Form Modal
 

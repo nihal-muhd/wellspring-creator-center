@@ -18,6 +18,11 @@ export const errorMiddleware: ErrorRequestHandler = (
   res,
   _next,
 ) => {
+  res.err =
+    error instanceof Error
+      ? error
+      : new Error("Unknown request error");
+
   if (error instanceof ZodError) {
     res.status(400).json({
       success: false,
@@ -41,8 +46,6 @@ export const errorMiddleware: ErrorRequestHandler = (
     });
     return;
   }
-
-  console.error("Unhandled request error", error);
 
   res.status(500).json({
     success: false,

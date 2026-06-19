@@ -6,9 +6,9 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ## Current Status
 
-**Current Phase:** Phase 7 — Audit Logs
-**Last completed:** Tenant-scoped audit log viewer with search, filters, pagination, and metadata details
-**Next:** Phase 8 — Tests and Quality Pass
+**Current Phase:** Phase 8 — Tests and Quality Pass
+**Last completed:** Database-backed tenant isolation, import idempotency, upload security, auth cookie, and structured logging quality checks
+**Next:** Phase 9 — Submission Docs
 
 ---
 
@@ -73,11 +73,11 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ### Phase 8 — Tests and Quality Pass
 
-- [ ] 37 Tenant isolation tests
-- [ ] 38 CSV import idempotency test
-- [ ] 39 S3 upload key security test
-- [ ] 40 Auth cookie check
-- [ ] 41 Structured logging check
+- [x] 37 Tenant isolation tests
+- [x] 38 CSV import idempotency test
+- [x] 39 S3 upload key security test
+- [x] 40 Auth cookie check
+- [x] 41 Structured logging check
 
 ---
 
@@ -153,6 +153,16 @@ Update this file after every completed feature. Any AI agent reading this should
 - Audit loading, request failure, filtered empty, unfiltered empty, reset, and pagination states are implemented.
 - Phase 7 verification passed backend TypeScript build, frontend ESLint, frontend standalone TypeScript checking, and `git diff --check`.
 - The full Next.js production build remains blocked locally by the known external Windows file lock on `frontend/.next/trace` (`EPERM`).
+- Phase 8 adds a serial Jest/Supertest integration harness that uses the configured `DATABASE_URL`, creates two uniquely named creator fixtures through the real signup API, and cleans up only those creator IDs after the suite.
+- Required tests are named exactly `rejects cross-tenant program access`, `rejects cross-tenant session access`, `rejects cross-tenant audit log access`, `does not duplicate sessions for repeated clientImportId`, and `creates tenant-scoped presigned upload key`.
+- Cross-tenant tests authenticate as creator A while using creator B's known program/session IDs or a forged `creatorId`, assert `404` or empty scoped results, and re-read PostgreSQL to prove creator B's records were unchanged.
+- Import idempotency is verified through two multipart API requests with the same creator-scoped `clientImportId`; persisted assertions confirm two sessions, one `BulkImport`, and one import audit record.
+- Upload security is verified with mocked URL signing but real authenticated ownership checks, confirming the generated key starts with the requesting `creatorId`, uses the owned `programId`, expires after 300 seconds, and does not sign for another tenant's program.
+- Pino HTTP request completion/error logs now include top-level `request_id` and `tenant_id`; public or unauthenticated requests use `tenant_id: null`, incoming request IDs are echoed, and cookie/authorization headers are redacted.
+- Auth cookie verification confirms `access_token` remains HTTP-only with `SameSite=Lax`; production continues to add the `Secure` attribute.
+- Repository review confirmed all authenticated Program, Session, BulkImport, AuditLog, upload ownership, and authenticated-user queries include `creatorId`. Pre-auth signup/login email lookups are the intentional exception because email is globally unique and no trusted tenant identity exists yet.
+- No Prisma schema change or ad-hoc SQL was needed in Phase 8. `prisma migrate status` reports both committed migrations applied and the database schema up to date.
+- Phase 8 verification passed all 7 backend integration tests, backend TypeScript build, test TypeScript checking, frontend ESLint, frontend standalone TypeScript checking, Prisma migration status, and `git diff --check`.
 - Prioritize frontend first inside each phase.
 - Tenant isolation is the highest priority.
 - Every tenant-owned backend query must include `creatorId`.

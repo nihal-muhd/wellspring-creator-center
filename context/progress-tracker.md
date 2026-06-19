@@ -7,8 +7,8 @@ Update this file after every completed feature. Any AI agent reading this should
 ## Current Status
 
 **Current Phase:** Phase 5 — CSV Import
-**Last completed:** CSV Import modal UI and local file validation
-**Next:** CSV import API
+**Last completed:** CSV import API, row-level feedback, idempotency, and audit logging
+**Next:** Phase 6 — S3 Uploads
 
 ---
 
@@ -52,10 +52,10 @@ Update this file after every completed feature. Any AI agent reading this should
 ### Phase 5 — CSV Import
 
 - [x] 24 CSV Import modal
-- [ ] 25 CSV import API
-- [ ] 26 Row-level validation feedback
-- [ ] 27 Idempotent import handling
-- [ ] 28 Import audit log
+- [x] 25 CSV import API
+- [x] 26 Row-level validation feedback
+- [x] 27 Idempotent import handling
+- [x] 28 Import audit log
 
 ### Phase 6 — S3 Uploads
 
@@ -122,8 +122,14 @@ Update this file after every completed feature. Any AI agent reading this should
 - The Program Detail Bulk Import action now opens an accessible CSV import modal matching the supplied reference and existing workspace modal patterns.
 - The CSV modal documents required and optional columns, shows sample data, accepts click-selected `.csv` files up to 10 MB, and provides selected-file Change/Remove controls.
 - CSV modal proportions were refined to a compact `max-w-2xl` shell with tighter section spacing and a shorter file-picker area for comfortable laptop viewport fit.
-- Import submission is intentionally UI-only for now: a valid file enables the action and shows a clear message that backend processing will be connected next.
-- CSV modal verification passed frontend ESLint, standalone TypeScript checking, and `git diff --check`.
+- The initial CSV modal shell passed frontend ESLint, standalone TypeScript checking, and `git diff --check` before API integration.
+- CSV import now posts multipart form data to `POST /programs/:programId/sessions/import` with a stable `clientImportId` and a route-scoped Multer memory upload limited to one `.csv` file under 10 MB.
+- The backend parses CSV with `csv-parse`, requires `title` and `duration`, accepts the documented optional columns, converts decimal duration hours to whole minutes, and returns visible CSV line numbers with field-level validation messages.
+- Valid rows are partially imported even when other rows fail; optional CSV positions order only the valid imported batch, which is appended after existing sessions with sequential persisted positions.
+- Import persistence verifies tenant-owned program access and transactionally creates valid sessions, the `BulkImport` result, and one `BULK_IMPORT_CREATED` audit record.
+- Reusing the same creator-scoped `clientImportId` returns the stored result with `idempotentReplay: true` and does not create sessions or another audit record.
+- The import modal now shows request errors, imported/failed row counts, idempotent replay status, and a scrollable row-error list, then refreshes the Program Detail session list and totals.
+- CSV import verification passed backend TypeScript build, frontend ESLint, frontend standalone TypeScript checking, parser line-number inspection, and `git diff --check`.
 - Prioritize frontend first inside each phase.
 - Tenant isolation is the highest priority.
 - Every tenant-owned backend query must include `creatorId`.

@@ -498,7 +498,26 @@ export function ProgramDetailPageContent({
       ) : null}
 
       {isImportOpen ? (
-        <SessionImportModal onClose={() => setIsImportOpen(false)} />
+        <SessionImportModal
+          onClose={() => setIsImportOpen(false)}
+          onImported={async () => {
+            const loadedSessions = await getProgramSessions(programId);
+            setSessions(loadedSessions);
+            setProgram((currentProgram) =>
+              currentProgram
+                ? {
+                    ...currentProgram,
+                    sessionCount: loadedSessions.length,
+                  }
+                : currentProgram,
+            );
+          }}
+          onUnauthorized={() => {
+            router.replace("/login");
+            router.refresh();
+          }}
+          programId={programId}
+        />
       ) : null}
     </main>
   );

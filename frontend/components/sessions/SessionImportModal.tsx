@@ -10,8 +10,18 @@ import {
   useState,
 } from "react";
 
+import {
+  getSessionImportErrorMessage,
+  importProgramSessions,
+  isUnauthorizedSessionImportError,
+} from "@/lib/imports/session-imports";
+import type { SessionImportResult } from "@/types/session-import";
+
 type SessionImportModalProps = {
+  onImported: () => Promise<void>;
   onClose: () => void;
+  onUnauthorized: () => void;
+  programId: string;
 };
 
 const maxCsvSize = 10 * 1024 * 1024;
@@ -37,7 +47,10 @@ function isCsvFile(file: File): boolean {
 }
 
 export function SessionImportModal({
+  onImported,
   onClose,
+  onUnauthorized,
+  programId,
 }: SessionImportModalProps) {
   const titleId = useId();
   const fileErrorId = useId();
@@ -46,8 +59,11 @@ export function SessionImportModal({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [clientImportId, setClientImportId] = useState("");
   const [fileError, setFileError] = useState("");
-  const [statusMessage, setStatusMessage] = useState("");
+  const [requestError, setRequestError] = useState("");
+  const [result, setResult] = useState<SessionImportResult | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
@@ -56,7 +72,9 @@ export function SessionImportModal({
 
     function handleKeyDown(event: KeyboardEvent): void {
       if (event.key === "Escape") {
-        onClose();
+        if (!isSubmitting) {
+          onClose();
+        }
         return;
       }
 
@@ -89,7 +107,7 @@ export function SessionImportModal({
       document.body.style.overflow = previousOverflow;
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [onClose]);
+  }, [isSubmitting, onClose]);
 
   function selectFile(file?: File): void {
     if (!file) {
@@ -99,20 +117,24 @@ export function SessionImportModal({
     if (!isCsvFile(file)) {
       setSelectedFile(null);
       setFileError("Choose a CSV file.");
-      setStatusMessage("");
+      setRequestError("");
+      setResult(null);
       return;
     }
 
     if (file.size > maxCsvSize) {
       setSelectedFile(null);
       setFileError("Choose a CSV file smaller than 10 MB.");
-      setStatusMessage("");
+      setRequestError("");
+      setResult(null);
       return;
     }
 
     setSelectedFile(file);
+    setClientImportId(crypto.randomUUID());
     setFileError("");
-    setStatusMessage("");
+    setRequestError("");
+    setResult(null);
   }
 
   function handleFileChange(event: ChangeEvent<HTMLInputElement>): void {
@@ -122,21 +144,42 @@ export function SessionImportModal({
 
   function removeFile(): void {
     setSelectedFile(null);
+    setClientImportId("");
     setFileError("");
-    setStatusMessage("");
+    setRequestError("");
+    setResult(null);
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>): void {
+  async function handleSubmit(
+    event: FormEvent<HTMLFormElement>,
+  ): Promise<void> {
     event.preventDefault();
 
-    if (!selectedFile) {
+    if (!selectedFile || !clientImportId) {
       setFileError("Choose a CSV file before importing.");
       return;
     }
 
-    setStatusMessage(
-      "Your CSV is ready. Import processing will be connected in the next step.",
-    );
+    setIsSubmitting(true);
+    setRequestError("");
+
+    try {
+      const importResult = await importProgramSessions(
+        programId,
+        selectedFile,
+        clientImportId,
+      );
+      setResult(importResult);
+      await onImported();
+    } catch (error) {
+      if (isUnauthorizedSessionImportError(error)) {
+        onUnauthorized();
+      } else {
+        setRequestError(getSessionImportErrorMessage(error));
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -149,6 +192,7 @@ export function SessionImportModal({
       <button
         aria-label="Close CSV import modal"
         className="absolute inset-0 cursor-default"
+        disabled={isSubmitting}
         onClick={onClose}
         type="button"
       />
@@ -172,6 +216,7 @@ export function SessionImportModal({
           <button
             aria-label="Close"
             className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            disabled={isSubmitting}
             onClick={onClose}
             ref={closeButtonRef}
             type="button"
@@ -218,9 +263,13 @@ export function SessionImportModal({
                 </p>
                 <pre className="mt-2 overflow-x-auto rounded-md bg-inverse-surface p-3 text-label-sm leading-relaxed text-inverse-on-surface sm:p-4">
                   <code>{`title,duration,position,instructorName,tags,mediaType,mediaUrl
-Welcome Session,5,1,Anu,"sleep,beginner",VIDEO,https://example.com/welcome.mp4
-Breathing Practice,12,2,Anu,"breathing,sleep",AUDIO,https://example.com/breathing.mp3`}</code>
+Welcome Session,0.5,1,Anu,"sleep,beginner",VIDEO,https://example.com/welcome.mp4
+Breathing Practice,0.2,2,Anu,"breathing,sleep",AUDIO,https://example.com/breathing.mp3`}</code>
                 </pre>
+                <p className="mt-2 text-label-sm text-muted-foreground">
+                  Duration is entered in decimal hours, such as 0.5 for 30
+                  minutes.
+                </p>
               </div>
             </section>
 
@@ -249,6 +298,7 @@ Breathing Practice,12,2,Anu,"breathing,sleep",AUDIO,https://example.com/breathin
                     <div className="flex gap-2">
                       <button
                         className="rounded-md border border-border bg-card px-3 py-2 text-label-sm font-semibold text-primary hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                        disabled={isSubmitting}
                         onClick={() => fileInputRef.current?.click()}
                         type="button"
                       >
@@ -256,6 +306,7 @@ Breathing Practice,12,2,Anu,"breathing,sleep",AUDIO,https://example.com/breathin
                       </button>
                       <button
                         className="rounded-md px-3 py-2 text-label-sm font-semibold text-error hover:bg-error-container focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-error"
+                        disabled={isSubmitting}
                         onClick={removeFile}
                         type="button"
                       >
@@ -267,6 +318,7 @@ Breathing Practice,12,2,Anu,"breathing,sleep",AUDIO,https://example.com/breathin
               ) : (
                 <button
                   className="flex min-h-40 w-full flex-col items-center justify-center rounded-xl border border-dashed border-outline-variant bg-card px-5 py-5 text-center text-muted-foreground hover:border-primary hover:bg-muted hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary sm:min-h-44"
+                  disabled={isSubmitting}
                   onClick={() => fileInputRef.current?.click()}
                   type="button"
                 >
@@ -284,6 +336,7 @@ Breathing Practice,12,2,Anu,"breathing,sleep",AUDIO,https://example.com/breathin
                 accept=".csv,text/csv"
                 aria-describedby={fileError ? fileErrorId : undefined}
                 className="sr-only"
+                disabled={isSubmitting}
                 onChange={handleFileChange}
                 ref={fileInputRef}
                 type="file"
@@ -295,14 +348,64 @@ Breathing Practice,12,2,Anu,"breathing,sleep",AUDIO,https://example.com/breathin
                 </p>
               ) : null}
 
-              {statusMessage ? (
+              {requestError ? (
                 <p
-                  className="mt-3 rounded-md bg-secondary-container px-3 py-2 text-label-sm text-on-secondary-container"
-                  id={statusId}
-                  role="status"
+                  className="mt-3 rounded-md bg-error-container px-3 py-2 text-label-sm text-on-error-container"
+                  role="alert"
                 >
-                  {statusMessage}
+                  {requestError}
                 </p>
+              ) : null}
+
+              {result ? (
+                <section
+                  aria-labelledby={statusId}
+                  className="mt-4 rounded-xl border border-border bg-muted p-4"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <h3
+                        className="text-label-md font-semibold text-primary"
+                        id={statusId}
+                      >
+                        Import complete
+                      </h3>
+                      <p className="mt-1 text-label-sm text-muted-foreground">
+                        {result.importedCount} imported · {result.failedCount}{" "}
+                        failed
+                      </p>
+                    </div>
+                    {result.idempotentReplay ? (
+                      <span className="rounded-full bg-secondary-container px-3 py-1.5 text-label-sm text-on-secondary-container">
+                        Previous result
+                      </span>
+                    ) : null}
+                  </div>
+
+                  {result.errors.length > 0 ? (
+                    <div className="mt-4">
+                      <p className="text-label-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                        Rows needing attention
+                      </p>
+                      <ul className="mt-2 max-h-40 space-y-2 overflow-y-auto">
+                        {result.errors.map((error, index) => (
+                          <li
+                            className="rounded-md bg-error-container px-3 py-2 text-label-sm text-on-error-container"
+                            key={`${error.row}-${error.field ?? "row"}-${index}`}
+                          >
+                            Row {error.row}
+                            {error.field ? ` · ${error.field}` : ""}:{" "}
+                            {error.message}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : (
+                    <p className="mt-3 text-label-sm text-muted-foreground">
+                      All rows were imported successfully.
+                    </p>
+                  )}
+                </section>
               ) : null}
             </section>
           </div>
@@ -310,19 +413,19 @@ Breathing Practice,12,2,Anu,"breathing,sleep",AUDIO,https://example.com/breathin
           <footer className="flex items-center justify-end gap-3 border-t border-border bg-muted px-5 py-3.5 sm:px-6">
             <button
               className="rounded-md px-4 py-2.5 text-label-md font-medium text-foreground transition-colors hover:bg-surface-container-high focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              disabled={isSubmitting}
               onClick={onClose}
               type="button"
             >
               Close
             </button>
             <button
-              aria-describedby={statusMessage ? statusId : undefined}
               className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2.5 text-label-md font-semibold text-on-primary transition-colors hover:bg-primary-container focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-60"
-              disabled={!selectedFile}
+              disabled={!selectedFile || isSubmitting}
               type="submit"
             >
               <FileUp aria-hidden="true" size={18} strokeWidth={1.75} />
-              Import Sessions
+              {isSubmitting ? "Importing..." : "Import Sessions"}
             </button>
           </footer>
         </form>

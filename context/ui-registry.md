@@ -362,11 +362,14 @@ Last updated: 2026-06-19
 | File picker | `min-h-40 rounded-xl border border-dashed border-outline-variant bg-card sm:min-h-44` |
 | File picker hover | `hover:border-primary hover:bg-muted hover:text-primary` |
 | Selected file icon | `rounded-md bg-secondary-container text-primary` |
+| Import result panel | `rounded-xl border border-border bg-muted p-4` |
+| Row error | `rounded-md bg-error-container text-on-error-container` |
+| Replay badge | `rounded-full bg-secondary-container text-on-secondary-container` |
 | Footer | `border-t border-border bg-muted px-5 py-3.5 sm:px-6` |
 | Primary action | `rounded-md bg-primary text-on-primary hover:bg-primary-container` |
 
 **Pattern notes:**
-The CSV import modal uses the shared accessible workspace modal shell with body scroll lock, focus containment, Escape/backdrop close, a scrollable body, and a tonal footer. Keep this information-heavy modal at `max-w-2xl` with compact 20px body rhythm so it fits comfortably on laptop screens. The format panel separates required and optional columns, while sample CSV content uses the inverse surface for readable code. File selection is click-only rather than drag-and-drop. Empty and selected states occupy the same section; selected files show filename, formatted size, Change, and Remove controls. Accept only CSV files up to 10 MB and keep the import action disabled until a valid file is selected.
+The CSV import modal uses the shared accessible workspace modal shell with body scroll lock, focus containment, Escape/backdrop close, a scrollable body, and a tonal footer. Keep this information-heavy modal at `max-w-2xl` with compact 20px body rhythm so it fits comfortably on laptop screens. The format panel separates required and optional columns, while sample CSV content uses the inverse surface for readable code. File selection is click-only rather than drag-and-drop. Empty and selected states occupy the same section; selected files show filename, formatted size, Change, and Remove controls. Accept only CSV files up to 10 MB and keep the import action disabled until a valid file is selected. During import, lock modal closing and file controls and change the action label to `Importing...`. After completion, keep the modal open: show imported/failed counts in a muted result panel, idempotent replays as a secondary-container badge, and each invalid row in a compact error-container item.
 
 ## Component Workflow
 
